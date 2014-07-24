@@ -1,0 +1,7 @@
+Here are some rules that must be respected in the code:
+1 - No C++ Exceptions (from Apple)
+2 - No Multiple Inheritance (from Apple)
+3 - No Templates (from Apple)
+4 - No RTTI (from Apple)
+5 - All class must start with com_parusinskimichal_ (until the name is changed
+to something more appropriate)
