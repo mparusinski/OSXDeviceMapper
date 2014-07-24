@@ -29,42 +29,27 @@
  
  */
 
-#include <IOKit/IOLib.h>
-#include "LinearDeviceMapper.h"
+#ifndef _OSX_DEVICE_MAPPER_
+#define _OSX_DEVICE_MAPPER_
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_LinearDeviceMapper, IOService);
+#include <IOKit/IOService.h>
 
-#define super IOService
-
-bool com_parusinskimichal_LinearDeviceMapper::init(OSDictionary *dict)
+class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
-    bool result = super::init(dict);
-    IOLog("Initializing\n");
-    return result;
-}
+    OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper);
+    
+public:
+    virtual bool init(OSDictionary *dictionary = 0);
+    
+    virtual void free(void);
+    
+    virtual IOService *probe(IOService *provider, SInt32 *score);
+    
+    virtual bool start(IOService *provider);
+    
+    virtual void stop(IOService *provider);
+    
+};
 
-void com_parusinskimichal_LinearDeviceMapper::free(void)
-{
-    IOLog("Freeing\n");
-    super::free();
-}
+#endif  // _OSX_DEVICE_MAPPER_
 
-IOService *com_parusinskimichal_LinearDeviceMapper::probe(IOService *provider, SInt32 *score)
-{
-    IOService *result = super::probe(provider, score);
-    IOLog("Probing\n");
-    return result;
-}
-
-bool com_parusinskimichal_LinearDeviceMapper::start(IOService *provider)
-{
-    bool result = super::start(provider);
-    IOLog("Starting\n");
-    return result;
-}
-
-void com_parusinskimichal_LinearDeviceMapper::stop(IOService *provider)
-{
-    IOLog("Stopping\n");
-    super::stop(provider);
-}

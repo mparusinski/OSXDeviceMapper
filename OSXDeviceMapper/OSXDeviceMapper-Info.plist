@@ -24,16 +24,16 @@
 	<string>1</string>
 	<key>IOKitPersonalities</key>
 	<dict>
-		<key>LinearDeviceMapper</key>
+		<key>OSXDeviceMapper</key>
 		<dict>
 			<key>IOMatchCategory</key>
-			<string>com_parusinskimichal_LinearDeviceMapper</string>
+			<string>com_parusinskimichal_OSXDeviceMapper</string>
 			<key>IOProviderClass</key>
 			<string>IOResources</string>
 			<key>IOKitDebug</key>
 			<integer>65535</integer>
 			<key>IOClass</key>
-			<string>com_parusinskimichal_LinearDeviceMapper</string>
+			<string>com_parusinskimichal_OSXDeviceMapper</string>
 			<key>CFBundleIdentifier</key>
 			<string>com.parusinskimichal.${PRODUCT_NAME:rfc1034identifier}</string>
 		</dict>

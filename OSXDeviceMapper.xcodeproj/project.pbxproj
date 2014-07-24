@@ -8,17 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		BAF8F841198028EE00C9D38E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BAF8F83F198028EE00C9D38E /* InfoPlist.strings */; };
-		BAF8F844198028EE00C9D38E /* LinearDeviceMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF8F843198028EE00C9D38E /* LinearDeviceMapper.cpp */; };
+		BAF8F844198028EE00C9D38E /* OSXDeviceMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BAF8F837198028EE00C9D38E /* LinearDeviceMapper.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinearDeviceMapper.kext; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAF8F837198028EE00C9D38E /* OSXDeviceMapper.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OSXDeviceMapper.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAF8F83B198028EE00C9D38E /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = System/Library/Frameworks/Kernel.framework; sourceTree = SDKROOT; };
-		BAF8F83E198028EE00C9D38E /* LinearDeviceMapper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LinearDeviceMapper-Info.plist"; sourceTree = "<group>"; };
+		BAF8F83E198028EE00C9D38E /* OSXDeviceMapper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OSXDeviceMapper-Info.plist"; sourceTree = "<group>"; };
 		BAF8F840198028EE00C9D38E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		BAF8F842198028EE00C9D38E /* LinearDeviceMapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LinearDeviceMapper.h; sourceTree = "<group>"; };
-		BAF8F843198028EE00C9D38E /* LinearDeviceMapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LinearDeviceMapper.cpp; sourceTree = "<group>"; };
-		BAF8F845198028EE00C9D38E /* LinearDeviceMapper-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LinearDeviceMapper-Prefix.pch"; sourceTree = "<group>"; };
+		BAF8F842198028EE00C9D38E /* OSXDeviceMapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSXDeviceMapper.h; sourceTree = "<group>"; };
+		BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OSXDeviceMapper.cpp; sourceTree = "<group>"; };
+		BAF8F845198028EE00C9D38E /* OSXDeviceMapper-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OSXDeviceMapper-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,7 +35,7 @@
 		BAF8F82C198028EE00C9D38E = {
 			isa = PBXGroup;
 			children = (
-				BAF8F83C198028EE00C9D38E /* LinearDeviceMapper */,
+				BAF8F83C198028EE00C9D38E /* OSXDeviceMapper */,
 				BAF8F839198028EE00C9D38E /* Frameworks */,
 				BAF8F838198028EE00C9D38E /* Products */,
 			);
@@ -44,7 +44,7 @@
 		BAF8F838198028EE00C9D38E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BAF8F837198028EE00C9D38E /* LinearDeviceMapper.kext */,
+				BAF8F837198028EE00C9D38E /* OSXDeviceMapper.kext */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,22 +65,22 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		BAF8F83C198028EE00C9D38E /* LinearDeviceMapper */ = {
+		BAF8F83C198028EE00C9D38E /* OSXDeviceMapper */ = {
 			isa = PBXGroup;
 			children = (
-				BAF8F842198028EE00C9D38E /* LinearDeviceMapper.h */,
-				BAF8F843198028EE00C9D38E /* LinearDeviceMapper.cpp */,
+				BAF8F842198028EE00C9D38E /* OSXDeviceMapper.h */,
+				BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */,
 				BAF8F83D198028EE00C9D38E /* Supporting Files */,
 			);
-			path = LinearDeviceMapper;
+			path = OSXDeviceMapper;
 			sourceTree = "<group>";
 		};
 		BAF8F83D198028EE00C9D38E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BAF8F83E198028EE00C9D38E /* LinearDeviceMapper-Info.plist */,
+				BAF8F83E198028EE00C9D38E /* OSXDeviceMapper-Info.plist */,
 				BAF8F83F198028EE00C9D38E /* InfoPlist.strings */,
-				BAF8F845198028EE00C9D38E /* LinearDeviceMapper-Prefix.pch */,
+				BAF8F845198028EE00C9D38E /* OSXDeviceMapper-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -98,9 +98,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		BAF8F836198028EE00C9D38E /* LinearDeviceMapper */ = {
+		BAF8F836198028EE00C9D38E /* OSXDeviceMapper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BAF8F848198028EE00C9D38E /* Build configuration list for PBXNativeTarget "LinearDeviceMapper" */;
+			buildConfigurationList = BAF8F848198028EE00C9D38E /* Build configuration list for PBXNativeTarget "OSXDeviceMapper" */;
 			buildPhases = (
 				BAF8F831198028EE00C9D38E /* Sources */,
 				BAF8F832198028EE00C9D38E /* Frameworks */,
@@ -112,9 +112,9 @@
 			);
 			dependencies = (
 			);
-			name = LinearDeviceMapper;
-			productName = LinearDeviceMapper;
-			productReference = BAF8F837198028EE00C9D38E /* LinearDeviceMapper.kext */;
+			name = OSXDeviceMapper;
+			productName = OSXDeviceMapper;
+			productReference = BAF8F837198028EE00C9D38E /* OSXDeviceMapper.kext */;
 			productType = "com.apple.product-type.kernel-extension";
 		};
 /* End PBXNativeTarget section */
@@ -126,7 +126,7 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Michal Parusinski";
 			};
-			buildConfigurationList = BAF8F830198028EE00C9D38E /* Build configuration list for PBXProject "LinearDeviceMapper" */;
+			buildConfigurationList = BAF8F830198028EE00C9D38E /* Build configuration list for PBXProject "OSXDeviceMapper" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -138,7 +138,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BAF8F836198028EE00C9D38E /* LinearDeviceMapper */,
+				BAF8F836198028EE00C9D38E /* OSXDeviceMapper */,
 			);
 		};
 /* End PBXProject section */
@@ -169,7 +169,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BAF8F844198028EE00C9D38E /* LinearDeviceMapper.cpp in Sources */,
+				BAF8F844198028EE00C9D38E /* OSXDeviceMapper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,9 +263,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0d1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "LinearDeviceMapper/LinearDeviceMapper-Prefix.pch";
-				INFOPLIST_FILE = "LinearDeviceMapper/LinearDeviceMapper-Info.plist";
-				MODULE_NAME = com.parusinskimichal.LinearDeviceMapper;
+				GCC_PREFIX_HEADER = "OSXDeviceMapper/OSXDeviceMapper-Prefix.pch";
+				INFOPLIST_FILE = "OSXDeviceMapper/OSXDeviceMapper-Info.plist";
+				MODULE_NAME = com.parusinskimichal.OSXDeviceMapper;
 				MODULE_VERSION = 1.0.0d1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = kext;
@@ -278,9 +278,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0d1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "LinearDeviceMapper/LinearDeviceMapper-Prefix.pch";
-				INFOPLIST_FILE = "LinearDeviceMapper/LinearDeviceMapper-Info.plist";
-				MODULE_NAME = com.parusinskimichal.LinearDeviceMapper;
+				GCC_PREFIX_HEADER = "OSXDeviceMapper/OSXDeviceMapper-Prefix.pch";
+				INFOPLIST_FILE = "OSXDeviceMapper/OSXDeviceMapper-Info.plist";
+				MODULE_NAME = com.parusinskimichal.OSXDeviceMapper;
 				MODULE_VERSION = 1.0.0d1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = kext;
@@ -290,7 +290,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BAF8F830198028EE00C9D38E /* Build configuration list for PBXProject "LinearDeviceMapper" */ = {
+		BAF8F830198028EE00C9D38E /* Build configuration list for PBXProject "OSXDeviceMapper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BAF8F846198028EE00C9D38E /* Debug */,
@@ -299,7 +299,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BAF8F848198028EE00C9D38E /* Build configuration list for PBXNativeTarget "LinearDeviceMapper" */ = {
+		BAF8F848198028EE00C9D38E /* Build configuration list for PBXNativeTarget "OSXDeviceMapper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BAF8F849198028EE00C9D38E /* Debug */,

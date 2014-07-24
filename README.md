@@ -1,4 +1,4 @@
-LinearDeviceMapper
+OS X Device Mapper
 ==================
 
-A simple experiment to create a linear device mapper on OS X
+A simple experiment to create a device mapper like tool for OS X
