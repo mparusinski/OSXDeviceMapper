@@ -43,15 +43,55 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider, SInt
     return result;
 }
 
+bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
+{
+    if (!super::init(dict)) {
+        return false;
+    }
+    
+    m_loop_file = nullptr;
+    
+    return true;
+}
+
+void com_parusinskimichal_OSXDeviceMapper::free(void)
+{
+    super::free();
+}
+
 bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 {
-    bool result = super::start(provider);
-    IOLog("Starting\n");
-    return result;
+    if (!super::start(provider)) {
+        return false;
+    }
+    
+    // Opening file
+    if (!vnode_open(LOOPDEVICE_FILE_PATH,
+                    FWRITE,
+                    700,
+                    VNODE_LOOKUP_NOFOLLOW | VNODE_LOOKUP_NOCROSSMOUNT,
+                    m_loop_file,
+                    m_vfs_context)){
+        goto err;
+    }
+    
+    return true;
+    
+err:
+    // TODO Handle error
+    
+    return false;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 {
-    IOLog("Stopping\n");
+    // Close file
+    if (!vnode_close(*m_loop_file, FWASWRITTEN, m_vfs_context)) { // TODO: FWASWRITTEN only if file was written = dirty
+        goto err;
+    }
+    
     super::stop(provider);
+    
+err:
+    return;
 }

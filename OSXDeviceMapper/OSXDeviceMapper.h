@@ -32,19 +32,32 @@
 #ifndef _OSX_DEVICE_MAPPER_
 #define _OSX_DEVICE_MAPPER_
 
+#include <sys/fcntl.h>
+#include <sys/vnode.h>
+
 #include <IOKit/IOService.h>
+
+#define LOOPDEVICE_FILE_PATH "/tmp/loopdevice"
 
 class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
     OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper);
 
 public:
+    virtual bool init(OSDictionary *dictionary = 0);
+    
+    virtual void free(void);
+    
     virtual IOService *probe(IOService *provider, SInt32 *score);
 
     virtual bool start(IOService *provider);
 
     virtual void stop(IOService *provider);
 
+private:
+    vnode_t * m_loop_file;
+    vfs_context_t m_vfs_context;
+    
 };
 
 #endif  // _OSX_DEVICE_MAPPER_
