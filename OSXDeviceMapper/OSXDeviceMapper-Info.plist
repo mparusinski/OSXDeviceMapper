@@ -40,8 +40,10 @@
 	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2014 Michal Parusinski. All rights reserved.</string>
-	<key>OSBundleLibraries</key>
+    <key>OSBundleLibraries</key>
 	<dict>
+		<key>com.apple.kpi.bsd</key>
+		<string>13.3</string>
 		<key>com.apple.kpi.iokit</key>
 		<string>13.3</string>
 		<key>com.apple.kpi.libkern</key>

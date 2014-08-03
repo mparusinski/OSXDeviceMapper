@@ -32,6 +32,8 @@
 #include <IOKit/IOLib.h>
 #include "OSXDeviceMapper.h"
 
+#include "Utils.h"
+
 OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService);
 
 #define super IOService
@@ -45,10 +47,12 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider, SInt
 
 bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
 {
+    DEBUG_MESSAGE("Initialising driver\n");
     if (!super::init(dict)) {
         return false;
     }
     
+    DEBUG_MESSAGE("Setting file node to null\n");
     m_loop_file = nullptr;
     
     return true;
@@ -56,16 +60,23 @@ bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
 
 void com_parusinskimichal_OSXDeviceMapper::free(void)
 {
+    DEBUG_MESSAGE("Freeing the driver\n");
     super::free();
 }
 
 bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 {
+    DEBUG_MESSAGE("Starting driver\n");
     if (!super::start(provider)) {
         return false;
     }
     
+    DEBUG_MESSAGE("Reading context\n");
+    m_vfs_context = vfs_context_create(NULL); // TODO Don't know why this should work
+    DEBUG_MESSAGE("Context read\n");
+    
     // Opening file
+    DEBUG_MESSAGE("Opening file\n");
     if (!vnode_open(LOOPDEVICE_FILE_PATH,
                     FWRITE,
                     700,
@@ -74,21 +85,30 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
                     m_vfs_context)){
         goto err;
     }
+    DEBUG_MESSAGE("File opened\n");
     
     return true;
     
 err:
     // TODO Handle error
+    DEBUG_MESSAGE("Error occurred\n");
     
     return false;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 {
+    DEBUG_MESSAGE("Stopping driver\n");
     // Close file
+    DEBUG_MESSAGE("Closing the file node\n");
     if (!vnode_close(*m_loop_file, FWASWRITTEN, m_vfs_context)) { // TODO: FWASWRITTEN only if file was written = dirty
         goto err;
     }
+    DEBUG_MESSAGE("File node closed\n");
+    
+    DEBUG_MESSAGE("Release VFS context");
+    vfs_context_rele(m_vfs_context);
+    DEBUG_MESSAGE("VFS context release");
     
     super::stop(provider);
     
