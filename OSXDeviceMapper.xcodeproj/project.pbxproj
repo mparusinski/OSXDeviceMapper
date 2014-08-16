@@ -12,7 +12,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BAC885CD198972A80008598C /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		BAF8F837198028EE00C9D38E /* OSXDeviceMapper.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OSXDeviceMapper.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAF8F83B198028EE00C9D38E /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = System/Library/Frameworks/Kernel.framework; sourceTree = SDKROOT; };
 		BAF8F83E198028EE00C9D38E /* OSXDeviceMapper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OSXDeviceMapper-Info.plist"; sourceTree = "<group>"; };
@@ -72,7 +71,6 @@
 				BAF8F842198028EE00C9D38E /* OSXDeviceMapper.h */,
 				BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */,
 				BAF8F83D198028EE00C9D38E /* Supporting Files */,
-				BAC885CD198972A80008598C /* Utils.h */,
 			);
 			path = OSXDeviceMapper;
 			sourceTree = "<group>";

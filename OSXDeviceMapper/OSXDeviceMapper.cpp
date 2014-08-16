@@ -23,95 +23,66 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- The views and conclusions contained in the software and documentation are those
- of the authors and should not be interpreted as representing official policies,
- either expressed or implied, of the FreeBSD Project.
-
  */
 
 #include <IOKit/IOLib.h>
 #include "OSXDeviceMapper.h"
 
-#include "Utils.h"
-
 OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService);
 
 #define super IOService
 
-IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider, SInt32 *score)
+bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
+{
+    if (super::init(dict)) {
+        IOLog("Initializing driver\n");
+        return true;
+    } else {
+        IOLog("Unsucessfuly initialised parent\n");
+        return false;
+    }
+}
+
+void com_parusinskimichal_OSXDeviceMapper::free(void)
+{
+    IOLog("Freeing the driver\n");
+    super::free();
+}
+
+IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
+    SInt32 *score)
 {
     IOService *result = super::probe(provider, score);
     IOLog("Probing\n");
     return result;
 }
 
-bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
-{
-    DEBUG_MESSAGE("Initialising driver\n");
-    if (!super::init(dict)) {
-        return false;
-    }
-    
-    DEBUG_MESSAGE("Setting file node to null\n");
-    m_loop_file = nullptr;
-    
-    return true;
-}
-
-void com_parusinskimichal_OSXDeviceMapper::free(void)
-{
-    DEBUG_MESSAGE("Freeing the driver\n");
-    super::free();
-}
-
 bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 {
-    DEBUG_MESSAGE("Starting driver\n");
-    if (!super::start(provider)) {
+    if (super::start(provider)) {
+        m_loop_file = 0;
+        vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+        int vnode_error = vnode_open(LOOPDEVICE_FILE_PATH, 0, 0, 0,
+            &m_loop_file, vfs_context);
+        if (vnode_error) {
+            IOLog("Error when opening file %s: error %d\n",
+                LOOPDEVICE_FILE_PATH, vnode_error);
+            return false;
+        }
+        vfs_context_rele(vfs_context);
+        return true;
+    } else {
         return false;
     }
-    
-    DEBUG_MESSAGE("Reading context\n");
-    m_vfs_context = vfs_context_create(NULL); // TODO Don't know why this should work
-    DEBUG_MESSAGE("Context read\n");
-    
-    // Opening file
-    DEBUG_MESSAGE("Opening file\n");
-    if (!vnode_open(LOOPDEVICE_FILE_PATH,
-                    FWRITE,
-                    700,
-                    VNODE_LOOKUP_NOFOLLOW | VNODE_LOOKUP_NOCROSSMOUNT,
-                    m_loop_file,
-                    m_vfs_context)){
-        goto err;
-    }
-    DEBUG_MESSAGE("File opened\n");
-    
-    return true;
-    
-err:
-    // TODO Handle error
-    DEBUG_MESSAGE("Error occurred\n");
-    
-    return false;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 {
-    DEBUG_MESSAGE("Stopping driver\n");
-    // Close file
-    DEBUG_MESSAGE("Closing the file node\n");
-    if (!vnode_close(*m_loop_file, FWASWRITTEN, m_vfs_context)) { // TODO: FWASWRITTEN only if file was written = dirty
-        goto err;
+    if (m_loop_file) {
+        IOLog("Closing the file node\n");
+        vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+        vnode_close(m_loop_file, 0, vfs_context);
+        vfs_context_rele(vfs_context);
     }
-    DEBUG_MESSAGE("File node closed\n");
-    
-    DEBUG_MESSAGE("Release VFS context");
-    vfs_context_rele(m_vfs_context);
-    DEBUG_MESSAGE("VFS context release");
-    
     super::stop(provider);
-    
-err:
-    return;
 }

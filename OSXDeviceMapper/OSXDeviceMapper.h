@@ -23,10 +23,6 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- The views and conclusions contained in the software and documentation are those
- of the authors and should not be interpreted as representing official policies,
- either expressed or implied, of the FreeBSD Project.
-
  */
 
 #ifndef _OSX_DEVICE_MAPPER_
@@ -45,9 +41,9 @@ class com_parusinskimichal_OSXDeviceMapper : public IOService
 
 public:
     virtual bool init(OSDictionary *dictionary = 0);
-    
+
     virtual void free(void);
-    
+
     virtual IOService *probe(IOService *provider, SInt32 *score);
 
     virtual bool start(IOService *provider);
@@ -55,9 +51,8 @@ public:
     virtual void stop(IOService *provider);
 
 private:
-    vnode_t * m_loop_file;
-    vfs_context_t m_vfs_context;
-    
+    struct vnode * m_loop_file;
+
 };
 
 #endif  // _OSX_DEVICE_MAPPER_
