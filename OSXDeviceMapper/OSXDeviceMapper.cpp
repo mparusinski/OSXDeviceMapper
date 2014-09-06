@@ -64,47 +64,47 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
 bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 // starting business logic
 {
-    if (super::start(provider)) {
-        m_loop_file = 0;
-        vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
-        int vnode_error = vnode_open(LOOPDEVICE_FILE_PATH, 0, 0, 0,
-            &m_loop_file, vfs_context);
-        if (vnode_error) {
-            IOLog("Error when opening file %s: error %d\n",
-                LOOPDEVICE_FILE_PATH, vnode_error);
-            return false;
-        }
+    if (!super::start(provider))
+        return false;
 
-        // // write a buffer:
-        // // 1 - create a buffer
-        // // 2 - ask kernel to write it
-        // char buffer[LOOPDEVICE_BUFFER_SIZE];
-        // for (int i = 0; i < LOOPDEVICE_BUFFER_SIZE - 2; i++) {
-        //     buffer[i] = 'Z';
-        // }
-        // buffer[LOOPDEVICE_BUFFER_SIZE - 2] = '\n';
-        // buffer[LOOPDEVICE_BUFFER_SIZE - 1] = '\0';
-        // caddr_t buffer_addr = (caddr_t) buffer;
-        //
-        // kauth_cred_t cr = vfs_context_ucred(vfs_context);
-        // proc_t proc = vfs_context_proc(vfs_context);
-        // int aresid = -1;
-        // int write_error = vn_rdwr(UIO_WRITE, m_loop_file, buffer_addr,
-        //     LOOPDEVICE_BUFFER_SIZE, 0, UIO_SYSSPACE, 0, cr, &aresid, proc);
-        // if (write_error) {
-        //     IOLog("Error writing to file %s: error %d\n", LOOPDEVICE_FILE_PATH, write_error);
-        //     return false;
-        // } else if (aresid > 0) {
-        //     IOLog("Some characters were not written %s\n", LOOPDEVICE_FILE_PATH);
-        //     return false;
-        // }
+    m_loop_file = 0;
+    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
 
-        vfs_context_rele(vfs_context);
-
-        return true;
-    } else {
+    int vnode_error = vnode_open(LOOPDEVICE_FILE_PATH, 0, 0, 0,
+        &m_loop_file, vfs_context);
+    if (vnode_error) {
+        IOLog("Error when opening file %s: error %d\n",
+            LOOPDEVICE_FILE_PATH, vnode_error);
         return false;
     }
+
+    // // write a buffer:
+    // // 1 - create a buffer
+    // // 2 - ask kernel to write it
+    // char buffer[LOOPDEVICE_BUFFER_SIZE];
+    // for (int i = 0; i < LOOPDEVICE_BUFFER_SIZE - 2; i++) {
+    //     buffer[i] = 'Z';
+    // }
+    // buffer[LOOPDEVICE_BUFFER_SIZE - 2] = '\n';
+    // buffer[LOOPDEVICE_BUFFER_SIZE - 1] = '\0';
+    // caddr_t buffer_addr = (caddr_t) buffer;
+    //
+    // kauth_cred_t cr = vfs_context_ucred(vfs_context);
+    // proc_t proc = vfs_context_proc(vfs_context);
+    // int aresid = -1;
+    // int write_error = vn_rdwr(UIO_WRITE, m_loop_file, buffer_addr,
+    //     LOOPDEVICE_BUFFER_SIZE, 0, UIO_SYSSPACE, 0, cr, &aresid, proc);
+    // if (write_error) {
+    //     IOLog("Error writing to file %s: error %d\n", LOOPDEVICE_FILE_PATH, write_error);
+    //     return false;
+    // } else if (aresid > 0) {
+    //     IOLog("Some characters were not written %s\n", LOOPDEVICE_FILE_PATH);
+    //     return false;
+    // }
+
+    vfs_context_rele(vfs_context);
+
+    return true;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
@@ -123,14 +123,6 @@ IOReturn com_parusinskimichal_OSXDeviceMapper::doAsyncReadWrite(IOMemoryDescript
     UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
     IOStorageCompletion *completion)
 {
-    // TODO: Implement this function
-    //       0 - Check if possible (block size checks)
-    //       1 - Check if authorized
-    //       2 - Check if read or write (in buffer)
-    //       3 - Identify data to read or write
-    //       4 - Perform transfer
-    //       5 - run completion route (check IOStorageCompletion)
-
     if (block >= LOOPDEVICE_BLOCK_NUM) {
         return kIOReturnOverrun;
     }
@@ -150,6 +142,7 @@ IOReturn com_parusinskimichal_OSXDeviceMapper::doAsyncReadWrite(IOMemoryDescript
     }
 
     IOByteCount actualByteCount = real_nblks * LOOPDEVICE_BLOCK_SIZE;
+    off_t byteOffset = block * LOOPDEVICE_BLOCK_SIZE;
 
     vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
 
@@ -159,31 +152,28 @@ IOReturn com_parusinskimichal_OSXDeviceMapper::doAsyncReadWrite(IOMemoryDescript
 
     int aresid = -1;
 
-    // TODO: This is wrong because I need to know the offset in the file
+    // TODO: Test this thorougly
     if (direction == kIODirectionIn) {
-        // TODO: Read block from file
         char * raw_buffer[actualByteCount];
 
         int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, 0, UIO_SYSSPACE, 0, cr, &aresid, proc);
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
         if (read_error) {
             IOLog("Error reading from loop device\n");
             actualByteCount = 0;
         } else if (aresid > 0) {
-            // TODO: Check this
             IOLog("Some characters were not read\n");
             return kIOReturnIOError;
         } else {
             buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
         }
     } else { // (direction == kIODirectionOut)
-        // TODO: Test this thorougly
         char * raw_buffer[actualByteCount]; // this is technically unneccesary
         buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
 
         int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, 0, UIO_SYSSPACE, 0, cr, &aresid, proc); // TODO: Fix offset
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc); // TODO: Fix offset
 
         if (write_error) {
             IOLog("Error writing to loop device\n");
