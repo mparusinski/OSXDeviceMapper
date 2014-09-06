@@ -54,16 +54,31 @@ void com_parusinskimichal_OSXDeviceMapper::free(void)
 
 IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
     SInt32 *score)
-// probing the device
 {
     IOService *result = super::probe(provider, score);
     IOLog("Probing\n");
     return result;
 }
 
-bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
-// starting business logic
+bool com_parusinskimichal_OSXDeviceMapper::attach(IOService *provider)
 {
+    IOLog("Attach the driver\n");
+    if (!super::attach(provider))
+        return false;
+
+    return true;
+}
+
+void com_parusinskimichal_OSXDeviceMapper::detach(IOService *provider)
+{
+    IOLog("Detaching the driver\n");
+
+    super::detach(provider);
+}
+
+bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
+{
+    IOLog("Starting the driver\n");
     if (!super::start(provider))
         return false;
 
@@ -78,38 +93,14 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
         return false;
     }
 
-    // // write a buffer:
-    // // 1 - create a buffer
-    // // 2 - ask kernel to write it
-    // char buffer[LOOPDEVICE_BUFFER_SIZE];
-    // for (int i = 0; i < LOOPDEVICE_BUFFER_SIZE - 2; i++) {
-    //     buffer[i] = 'Z';
-    // }
-    // buffer[LOOPDEVICE_BUFFER_SIZE - 2] = '\n';
-    // buffer[LOOPDEVICE_BUFFER_SIZE - 1] = '\0';
-    // caddr_t buffer_addr = (caddr_t) buffer;
-    //
-    // kauth_cred_t cr = vfs_context_ucred(vfs_context);
-    // proc_t proc = vfs_context_proc(vfs_context);
-    // int aresid = -1;
-    // int write_error = vn_rdwr(UIO_WRITE, m_loop_file, buffer_addr,
-    //     LOOPDEVICE_BUFFER_SIZE, 0, UIO_SYSSPACE, 0, cr, &aresid, proc);
-    // if (write_error) {
-    //     IOLog("Error writing to file %s: error %d\n", LOOPDEVICE_FILE_PATH, write_error);
-    //     return false;
-    // } else if (aresid > 0) {
-    //     IOLog("Some characters were not written %s\n", LOOPDEVICE_FILE_PATH);
-    //     return false;
-    // }
-
     vfs_context_rele(vfs_context);
 
     return true;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
-// ending business logic
 {
+    IOLog("Stopping the driver\n");
     if (m_loop_file) {
         IOLog("Closing the file node\n");
         vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);

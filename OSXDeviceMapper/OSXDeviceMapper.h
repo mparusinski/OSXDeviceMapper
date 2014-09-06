@@ -55,69 +55,54 @@ public:
 
     virtual IOService *probe(IOService *provider, SInt32 *score);
 
+    virtual bool attach(IOService *provider);
+
+    virtual void detach(IOService *provider);
+
     virtual bool start(IOService *provider);
 
     virtual void stop(IOService *provider);
 
-    // TODO: Implement this
     virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer,
         UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
         IOStorageCompletion *completion);
 
-    // TODO: Implement this
     virtual IOReturn doEjectMedia(void);
 
-    // TODO: Implement this
     virtual IOReturn doFormatMedia( UInt64 byteCapacity);
 
-    // TODO: Implement this
     virtual UInt32 doGetFormatCapacities( UInt64 *capacities,
         UInt32 capacitiesMaxCount) const;
 
-    // TODO: Implement this
     virtual IOReturn doSynchronizeCache(void);
 
-    // TODO: Implement this
     virtual IOReturn doUnmap( IOBlockStorageDeviceExtent *extents,
         UInt32 extentsCount, UInt32 options = 0);
 
-    // TODO: Implement this
     virtual char * getAdditionalDeviceInfoString(void);
 
-    // TODO: Implement this
     virtual char * getProductString(void);
 
-    // TODO: Implement this
     virtual char * getRevisionString(void);
 
-    // TODO: Implement this
     virtual char * getVendorString(void);
 
-    // TODO: Implement this
     virtual IOReturn getWriteCacheState(bool *enabled);
 
-    // TODO: Implement this
     virtual IOReturn reportBlockSize(UInt64 *blockSize);
 
-    // TODO: Implement this
     virtual IOReturn reportEjectability(bool *isEjectable);
 
-    // TODO: Implement this
     virtual IOReturn reportMaxValidBlock(UInt64 *maxBlock);
 
-    // TODO: Implement this
     virtual IOReturn reportMediaState(bool *mediaPresent, bool *changedState = 0);
 
-    // TODO: Implement this
     virtual IOReturn reportRemovability(bool *isRemovable);
 
-    // TODO: Implement this
     virtual IOReturn reportWriteProtection(bool *isWriteProtected);
 
-    // TODO: Implement this
     virtual IOReturn requestIdle(void);
 
-    // TODO: Implement this
     virtual IOReturn setWriteCacheState(bool enabled);
 
 private:
