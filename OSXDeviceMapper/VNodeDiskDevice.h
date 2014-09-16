@@ -25,8 +25,8 @@
 
  */
 
-#ifndef _OSX_DEVICE_MAPPER_
-#define _OSX_DEVICE_MAPPER_
+#ifndef _V_NODE_DISK_DEVICE_
+#define _V_NODE_DISK_DEVICE_
 
 #include <sys/fcntl.h>
 #include <sys/vnode.h>
@@ -34,19 +34,19 @@
 //#include <IOKit/IOService.h>
 #include <IOKit/storage/IOBlockStorageDevice.h>
 
-#define LOOPDEVICE_FILE_PATH "/tmp/loopdevice"
+#define LOOPDEVICE_FILE_PATH "/tmp/vnodedevice"
 #define LOOPDEVICE_BLOCK_SIZE 32
 #define LOOPDEVICE_BLOCK_NUM 16
 
 // TODO: Add a project defines header and rename the class to something more appropriate
 #define DEVELOPER "Michal Parusinski"
 #define PROJECT "OSXDeviceMapper"
-#define COMPONENT "loopdevicetest"
+#define COMPONENT "VNodeDiskDevice"
 #define VERSION "0.1"
 
-class com_parusinskimichal_OSXDeviceMapper : public IOService
+class com_parusinskimichal_VNodeDiskDevice : public IOBlockStorageDevice
 {
-    OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper);
+    OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice);
 
 public:
     virtual bool init(OSDictionary *dictionary = 0);
@@ -55,10 +55,59 @@ public:
 
     virtual IOService *probe(IOService *provider, SInt32 *score);
 
+    virtual bool attach(IOService *provider);
+
+    virtual void detach(IOService *provider);
+
     virtual bool start(IOService *provider);
 
     virtual void stop(IOService *provider);
 
+    virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer,
+        UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
+        IOStorageCompletion *completion);
+
+    virtual IOReturn doEjectMedia(void);
+
+    virtual IOReturn doFormatMedia( UInt64 byteCapacity);
+
+    virtual UInt32 doGetFormatCapacities( UInt64 *capacities,
+        UInt32 capacitiesMaxCount) const;
+
+    virtual IOReturn doSynchronizeCache(void);
+
+    virtual IOReturn doUnmap( IOBlockStorageDeviceExtent *extents,
+        UInt32 extentsCount, UInt32 options = 0);
+
+    virtual char * getAdditionalDeviceInfoString(void);
+
+    virtual char * getProductString(void);
+
+    virtual char * getRevisionString(void);
+
+    virtual char * getVendorString(void);
+
+    virtual IOReturn getWriteCacheState(bool *enabled);
+
+    virtual IOReturn reportBlockSize(UInt64 *blockSize);
+
+    virtual IOReturn reportEjectability(bool *isEjectable);
+
+    virtual IOReturn reportMaxValidBlock(UInt64 *maxBlock);
+
+    virtual IOReturn reportMediaState(bool *mediaPresent, bool *changedState = 0);
+
+    virtual IOReturn reportRemovability(bool *isRemovable);
+
+    virtual IOReturn reportWriteProtection(bool *isWriteProtected);
+
+    virtual IOReturn requestIdle(void);
+
+    virtual IOReturn setWriteCacheState(bool enabled);
+
+private:
+    struct vnode * m_loop_file;
+
 };
 
-#endif  // _OSX_DEVICE_MAPPER_
+#endif  // _V_NODE_DISK_DEVICE_

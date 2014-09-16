@@ -39,7 +39,7 @@
 		</dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2014 Michal Parusinski. Licensed under the BSD license</string>
+	<string>Copyright © 2014 Michal Parusinski. Released under a BSD license</string>
     <key>OSBundleLibraries</key>
     <dict>
         <key>com.apple.iokit.IOStorageFamily</key>
