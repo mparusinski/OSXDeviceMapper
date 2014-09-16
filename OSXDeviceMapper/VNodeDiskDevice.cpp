@@ -29,7 +29,7 @@
 #include <IOKit/IOReturn.h>
 #include "VNodeDiskDevice.h"
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskDevice, IOBlockStorageDevice);
+OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskDevice, IOBlockStorageDevice)
 
 #define super IOBlockStorageDevice
 

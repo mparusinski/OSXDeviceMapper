@@ -30,7 +30,7 @@
 #include "VNodeDiskDevice.h"
 #include "OSXDeviceMapper.h"
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService);
+OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService)
 
 #define super IOService
 
@@ -70,16 +70,16 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
     com_parusinskimichal_VNodeDiskDevice * vnodedisk = 0;
     vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
 
-    if (!vnodedisk)
-        return false;
-
-    OSDictionary * dictionary = 0;
-    if (!vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
-        return false;
-
-    // TODO: Attach vnodedisk to a driver
-
-    // TODO: Register the service provided by the vnodedisk driver
+//    if (!vnodedisk)
+//        return false;
+//
+//    OSDictionary * dictionary = 0;
+//    if (!vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
+//        return false;
+//
+//    // TODO: Attach vnodedisk to a driver
+//
+//    // TODO: Register the service provided by the vnodedisk driver
 
     return true;
 }

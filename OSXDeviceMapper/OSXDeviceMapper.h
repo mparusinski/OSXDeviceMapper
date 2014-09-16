@@ -31,8 +31,7 @@
 #include <sys/fcntl.h>
 #include <sys/vnode.h>
 
-//#include <IOKit/IOService.h>
-#include <IOKit/storage/IOBlockStorageDevice.h>
+#include <IOKit/IOService.h>
 
 #define LOOPDEVICE_FILE_PATH "/tmp/loopdevice"
 #define LOOPDEVICE_BLOCK_SIZE 32
@@ -46,7 +45,7 @@
 
 class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
-    OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper);
+    OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
 
 public:
     virtual bool init(OSDictionary *dictionary = 0);

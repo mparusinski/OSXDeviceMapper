@@ -31,7 +31,7 @@
 #include <sys/fcntl.h>
 #include <sys/vnode.h>
 
-//#include <IOKit/IOService.h>
+#include <IOKit/IOService.h>
 #include <IOKit/storage/IOBlockStorageDevice.h>
 
 #define LOOPDEVICE_FILE_PATH "/tmp/vnodedevice"
@@ -46,7 +46,7 @@
 
 class com_parusinskimichal_VNodeDiskDevice : public IOBlockStorageDevice
 {
-    OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice);
+    OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice)
 
 public:
     virtual bool init(OSDictionary *dictionary = 0);
