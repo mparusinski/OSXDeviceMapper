@@ -70,12 +70,18 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
     com_parusinskimichal_VNodeDiskDevice * vnodedisk = 0;
     vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
 
-//    if (!vnodedisk)
-//        return false;
-//
-//    OSDictionary * dictionary = 0;
-//    if (!vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
-//        return false;
+    if (!vnodedisk)
+        return false;
+
+    OSDictionary * dictionary = 0;
+    if (!vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
+        return false;
+
+    if (!vnodedisk->attach(this))
+        return false;
+
+    vnodedisk->registerService(kIOServiceSynchronous);
+
 //
 //    // TODO: Attach vnodedisk to a driver
 //

@@ -37,7 +37,7 @@ bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
 // constructor equivalent
 {
     if (super::init(dict)) {
-        IOLog("Initializing driver\n");
+        IOLog("Initializing device\n");
         return true;
     } else {
         IOLog("Unsucessfuly initialised parent\n");
@@ -48,7 +48,7 @@ bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
 void com_parusinskimichal_VNodeDiskDevice::free(void)
 // destructor equivalent
 {
-    IOLog("Freeing the driver\n");
+    IOLog("Freeing the device\n");
     super::free();
 }
 
@@ -60,25 +60,9 @@ IOService *com_parusinskimichal_VNodeDiskDevice::probe(IOService *provider,
     return result;
 }
 
-bool com_parusinskimichal_VNodeDiskDevice::attach(IOService *provider)
-{
-    IOLog("Attach the driver\n");
-    if (!super::attach(provider))
-        return false;
-
-    return true;
-}
-
-void com_parusinskimichal_VNodeDiskDevice::detach(IOService *provider)
-{
-    IOLog("Detaching the driver\n");
-
-    super::detach(provider);
-}
-
 bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
 {
-    IOLog("Starting the driver\n");
+    IOLog("Starting the device\n");
     if (!super::start(provider))
         return false;
 
@@ -100,7 +84,7 @@ bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
 
 void com_parusinskimichal_VNodeDiskDevice::stop(IOService *provider)
 {
-    IOLog("Stopping the driver\n");
+    IOLog("Stopping the device\n");
     if (m_loop_file) {
         IOLog("Closing the file node\n");
         vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
