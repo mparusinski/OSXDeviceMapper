@@ -39,7 +39,7 @@
 		</dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2014 Michal Parusinski. All rights reserved.</string>
+	<string>Copyright © 2014 Michal Parusinski. Licensed under the BSD license</string>
     <key>OSBundleLibraries</key>
 	<dict>
 		<key>com.apple.kpi.bsd</key>
