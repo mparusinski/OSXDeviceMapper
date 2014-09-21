@@ -39,15 +39,17 @@
 		</dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2014 Michal Parusinski. Licensed under the BSD license</string>
+	<string>Copyright © 2014 Michal Parusinski. Released under a BSD license</string>
     <key>OSBundleLibraries</key>
-	<dict>
-		<key>com.apple.kpi.bsd</key>
-		<string>13.3</string>
-		<key>com.apple.kpi.iokit</key>
-		<string>13.3</string>
-		<key>com.apple.kpi.libkern</key>
-		<string>13.3</string>
-	</dict>
+    <dict>
+        <key>com.apple.iokit.IOStorageFamily</key>
+        <string>1.9</string>
+        <key>com.apple.kpi.bsd</key>
+        <string>13.3</string>
+        <key>com.apple.kpi.iokit</key>
+        <string>13.3</string>
+        <key>com.apple.kpi.libkern</key>
+        <string>13.3</string>
+    </dict>
 </dict>
 </plist>
