@@ -27,7 +27,6 @@
 
 #include <IOKit/IOLib.h>
 #include <IOKit/IOReturn.h>
-#include "VNodeDiskDevice.h"
 #include "OSXDeviceMapper.h"
 
 OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService)
@@ -69,25 +68,22 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
     if (!super::start(provider))
         return false;
 
-    com_parusinskimichal_VNodeDiskDevice * vnodedisk = 0;
-    vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
+    m_vnodedisk = NULL;
+    m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
 
-    if (!vnodedisk)
+    if (!m_vnodedisk)
         return false;
 
     OSDictionary * dictionary = 0;
-    if (!vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
+    if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
         return false;
 
-    if (!vnodedisk->attach(this))
+    if (!m_vnodedisk->attach(this))
         return false;
 
-    vnodedisk->registerService(kIOServiceSynchronous);
+    m_vnodedisk->registerService(kIOServiceSynchronous);
 
-//
-//    // TODO: Attach vnodedisk to a driver
-//
-//    // TODO: Register the service provided by the vnodedisk driver
+    m_vnodedisk->release();
 
     return true;
 }
@@ -96,5 +92,11 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 // ending business logic
 {
     IOLog("Stopping the driver\n");
+
+    // m_vnodedisk->detach(this);
+
+    if (!m_vnodedisk->terminate(kIOServiceRequired | kIOServiceSynchronous))
+        IOLog("Error at terminating device\n");
+
     super::stop(provider);
 }

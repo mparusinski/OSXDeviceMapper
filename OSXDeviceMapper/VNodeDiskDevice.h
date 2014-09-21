@@ -35,8 +35,8 @@
 #include <IOKit/storage/IOBlockStorageDevice.h>
 
 #define LOOPDEVICE_FILE_PATH "/tmp/vnodedevice"
-#define LOOPDEVICE_BLOCK_SIZE 32
-#define LOOPDEVICE_BLOCK_NUM 16
+#define LOOPDEVICE_BLOCK_SIZE 4096 // 4K
+#define LOOPDEVICE_BLOCK_NUM 256 // TO MAKE 1 MB the minimum
 
 // TODO: Add a project defines header and rename the class to something more appropriate
 #define DEVELOPER "Michal Parusinski"

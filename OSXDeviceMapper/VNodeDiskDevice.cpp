@@ -171,9 +171,8 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::doEjectMedia(void)
 {
-    // TODO: Not sure, probably keep it unsupported
     IOLog("ejecting media is not supported\n");
-    return kIOReturnSuccess;
+    return kIOReturnUnsupported;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::doFormatMedia( UInt64 byteCapacity)
@@ -187,6 +186,7 @@ UInt32 com_parusinskimichal_VNodeDiskDevice::doGetFormatCapacities( UInt64 *capa
     UInt32 capacitiesMaxCount) const
 {
     if (capacities == NULL || capacitiesMaxCount < 1) {
+        IOLog("Array of capacities is empty\n");
         return 0;
     }
 
@@ -250,7 +250,6 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::getWriteCacheState(bool *enabled)
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::reportBlockSize(UInt64 *blockSize)
 {
-    // TODO: Adapt this function to the actual block size
     *blockSize = LOOPDEVICE_BLOCK_SIZE;
     return kIOReturnSuccess;
 }

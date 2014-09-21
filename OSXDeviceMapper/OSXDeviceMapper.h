@@ -33,6 +33,8 @@
 
 #include <IOKit/IOService.h>
 
+#include "VNodeDiskDevice.h"
+
 class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
     OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
@@ -47,6 +49,9 @@ public:
     virtual bool start(IOService *provider);
 
     virtual void stop(IOService *provider);
+
+private:
+    com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
 
 };
 
