@@ -93,6 +93,7 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 {
     IOLog("Stopping the driver\n");
 
+    // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
     // m_vnodedisk->detach(this);
 
     if (!m_vnodedisk->terminate(kIOServiceRequired | kIOServiceSynchronous))

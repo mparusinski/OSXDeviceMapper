@@ -99,73 +99,71 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
     IOStorageCompletion *completion)
 {
     if (block >= LOOPDEVICE_BLOCK_NUM) {
+        IOLog("Attempting to write outside vnode disk\n");
         return kIOReturnOverrun;
     }
 
-    UInt64 real_nblks = nblks;
-
-    if ((block + real_nblks) >= LOOPDEVICE_BLOCK_NUM) {
-        real_nblks = LOOPDEVICE_BLOCK_NUM - block - 1;
-    }
-
-    // TODO: Figure out what to do with attributes
-
     IODirection direction = buffer->getDirection();
-    if ((direction == kIODirectionIn) || (direction == kIODirectionOut)) {
+    if ((direction != kIODirectionIn) && (direction != kIODirectionOut)) {
         IOLog("No valid direction of transfer: required either in or out\n");
         kIOReturnIOError;
     }
 
+    UInt64 real_nblks = nblks;
+    if ((block + real_nblks - 1) >= LOOPDEVICE_BLOCK_NUM) {
+        IOLog("Adjusting block number of written\n");
+        real_nblks = LOOPDEVICE_BLOCK_NUM - block;
+    }
     IOByteCount actualByteCount = real_nblks * LOOPDEVICE_BLOCK_SIZE;
     off_t byteOffset = block * LOOPDEVICE_BLOCK_SIZE;
 
-    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+    // TODO: Test this thorougly
+    IOLog("Performing operation on disk\n");
+    IOLog("Original block position %llu, block number %llu\n", block, nblks);
+    IOLog("Byte offset %llu, byte count %llu\n", byteOffset, actualByteCount);
 
-    // TODO: These two line aren't pretty - Can they cause a risk?
+    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
     proc_t proc = vfs_context_proc(vfs_context);
     kauth_cred_t cr = vfs_context_ucred(vfs_context);
 
     int aresid = -1;
 
-    // TODO: Test this thorougly
+    char * raw_buffer = NULL;
+    raw_buffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
+    if (!raw_buffer)
+        goto cleanup;
+
     if (direction == kIODirectionIn) {
-        char * raw_buffer[actualByteCount];
+        IOLog("Reading from disk\n");
 
         int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
-            (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-        if (read_error) {
-            IOLog("Error reading from loop device\n");
-            actualByteCount = 0;
-        } else if (aresid > 0) {
-            IOLog("Some characters were not read\n");
-            return kIOReturnIOError;
-        } else {
-            buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
-        }
+        if (read_error || aresid > 0)
+            goto cleanup;
+
+        buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
+
     } else { // (direction == kIODirectionOut)
-        char * raw_buffer[actualByteCount]; // this is technically unneccesary
+        IOLog("Writing to disk\n");
+
         buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
 
         int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc); // TODO: Fix offset
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-        if (write_error) {
-            IOLog("Error writing to loop device\n");
-            actualByteCount = 0;
-        }
-
-        if (aresid > 0) {
-            // technically this should not happen
-            IOLog("Some characters have not been written\n");
-            // TODO Get actual byte count and not return this
-            return kIOReturnIOError;
-        }
+        if (write_error || aresid > 0)
+            goto cleanup;
     }
+
+cleanup:
     vfs_context_rele(vfs_context);
+    if (raw_buffer)
+        IOFree(raw_buffer, sizeof(char) * actualByteCount);
+
+    actualByteCount = actualByteCount > aresid ? actualByteCount - aresid : 0;
 
     completion->action(completion->target, completion->parameter, kIOReturnSuccess, actualByteCount);
-
     return kIOReturnSuccess;
 }
 
@@ -185,6 +183,7 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doFormatMedia( UInt64 byteCapacit
 UInt32 com_parusinskimichal_VNodeDiskDevice::doGetFormatCapacities( UInt64 *capacities,
     UInt32 capacitiesMaxCount) const
 {
+    IOLog("Checking block capacity\n");
     if (capacities == NULL || capacitiesMaxCount < 1) {
         IOLog("Array of capacities is empty\n");
         return 0;
@@ -262,7 +261,7 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::reportEjectability(bool *isEjecta
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::reportMaxValidBlock(UInt64 *maxBlock)
 {
-    *maxBlock = (LOOPDEVICE_BLOCK_NUM / LOOPDEVICE_BLOCK_SIZE) - 1;
+    *maxBlock = LOOPDEVICE_BLOCK_NUM - 1;
     return kIOReturnSuccess;
 }
 
