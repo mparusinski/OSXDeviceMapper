@@ -164,8 +164,6 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
     if (direction == kIODirectionIn) {
         IOLog("Reading from disk\n");
 
-        goto cleanup;
-
         /*
          * There is a mistake here in read callback. The following are probably
          * wrong:
@@ -182,7 +180,7 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
         //     actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
         int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, byteOffset, UIO_USERSPACE, (IO_SYNC | IO_NODELOCKED | IO_UNIT | IO_NOCACHE), cr, &aresid, proc);
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
         IOLog("Data was read\n");
 
@@ -191,18 +189,18 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
             goto cleanup;
         }
 
-        // buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
+        buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
 
     } else { // (direction == kIODirectionOut)
         IOLog("Writing to disk\n");
 
-        // buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
+         buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
 
-        // int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
-        //     actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
+        int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
+            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-        // if (write_error || aresid > 0)
-        //     goto cleanup;
+        if (write_error || aresid > 0)
+            goto cleanup;
     }
 
 cleanup:
