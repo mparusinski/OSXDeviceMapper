@@ -31,7 +31,6 @@
 #include <sys/fcntl.h>
 #include <sys/vnode.h>
 
-#include <IOKit/IOService.h>
 #include <IOKit/storage/IOBlockStorageDevice.h>
 
 #define LOOPDEVICE_FILE_PATH "/tmp/vnodedevice"
@@ -58,6 +57,10 @@ public:
     virtual bool start(IOService *provider);
 
     virtual void stop(IOService *provider);
+
+    bool setupVNode();
+
+    void closeVNode();
 
     virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer,
         UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
@@ -102,6 +105,7 @@ public:
     virtual IOReturn setWriteCacheState(bool enabled);
 
 private:
+
     struct vnode * m_loop_file;
 
 };

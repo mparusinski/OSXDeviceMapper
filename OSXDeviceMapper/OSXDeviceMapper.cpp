@@ -57,7 +57,7 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
 // probing the device
 {
     IOService *result = super::probe(provider, score);
-    IOLog("Probing\n");
+    IOLog("Probing the driver\n");
     return result;
 }
 
@@ -76,16 +76,24 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 
     OSDictionary * dictionary = 0;
     if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
-        return false;
+        goto cleanup;   
 
     if (!m_vnodedisk->attach(this))
-        return false;
+        goto cleanup;
 
     m_vnodedisk->registerService(kIOServiceSynchronous);
 
     m_vnodedisk->release();
 
     return true;
+
+cleanup:
+
+    if (m_vnodedisk != NULL) {
+        m_vnodedisk->free();
+    }
+
+    return false;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
@@ -94,7 +102,7 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
     IOLog("Stopping the driver\n");
 
     // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
-    // m_vnodedisk->detach(this);
+    m_vnodedisk->detach(this);
 
     if (!m_vnodedisk->terminate(kIOServiceRequired | kIOServiceSynchronous))
         IOLog("Error at terminating device\n");
