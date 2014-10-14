@@ -28,6 +28,7 @@
 #include <IOKit/IOLib.h>
 #include <IOKit/IOReturn.h>
 #include <sys/types.h>
+#include "OSXDeviceMapper.h"
 #include "VNodeDiskDevice.h"
 
 OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskDevice, IOBlockStorageDevice)
@@ -40,9 +41,6 @@ bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
     if (super::init(dict)) {
         IOLog("Initializing device\n");
         m_loop_file = NULL;
-        if (!setupVNode()) {
-            return false;
-        }
         return true;
     } else {
         IOLog("Unsucessfuly initialised parent\n");
@@ -54,7 +52,6 @@ void com_parusinskimichal_VNodeDiskDevice::free(void)
 // destructor equivalent
 {
     IOLog("Freeing the device\n");
-    closeVNode();
     super::free();
 }
 
@@ -108,6 +105,7 @@ void com_parusinskimichal_VNodeDiskDevice::closeVNode() {
         vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
         vnode_close(m_loop_file, 0, vfs_context);
         vfs_context_rele(vfs_context);
+        m_loop_file = NULL;
     }
 }
 
@@ -121,6 +119,9 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
     UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
     IOStorageCompletion *completion)
 {
+    if (m_loop_file == NULL)
+        return kIOReturnIOError;
+
     IOReturn returnMessage = kIOReturnSuccess;
 
     if (block >= LOOPDEVICE_BLOCK_NUM) {
@@ -216,8 +217,10 @@ cleanup:
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::doEjectMedia(void)
 {
-    IOLog("ejecting media is not supported\n");
-    return kIOReturnUnsupported;
+    // Should this function not operate as expected one can try
+    com_parusinskimichal_OSXDeviceMapper *  kext_driver = (com_parusinskimichal_OSXDeviceMapper *) getProvider();
+    kext_driver->ejectVNode();
+    return kIOReturnSuccess;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::doFormatMedia( UInt64 byteCapacity)

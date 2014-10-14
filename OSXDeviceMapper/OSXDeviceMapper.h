@@ -50,8 +50,12 @@ public:
 
     virtual void stop(IOService *provider);
 
+    virtual void ejectVNode();
+
 private:
     com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
+
+    bool m_vnodeloaded;
 
 };
 

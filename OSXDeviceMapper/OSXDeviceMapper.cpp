@@ -38,6 +38,7 @@ bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
 {
     if (super::init(dict)) {
         IOLog("Initializing driver\n");
+        m_vnodeloaded = false;
         return true;
     } else {
         IOLog("Unsucessfuly initialised parent\n");
@@ -78,6 +79,9 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
     if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
         goto cleanup;   
 
+    if (!m_vnodedisk->setupVNode())
+        goto cleanup;
+
     if (!m_vnodedisk->attach(this))
         goto cleanup;
 
@@ -85,11 +89,13 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 
     m_vnodedisk->release();
 
+    m_vnodeloaded = true;
+
     return true;
 
 cleanup:
-
     if (m_vnodedisk != NULL) {
+        m_vnodedisk->closeVNode();
         m_vnodedisk->free();
     }
 
@@ -100,12 +106,21 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 // ending business logic
 {
     IOLog("Stopping the driver\n");
+    ejectVNode();
+    super::stop(provider);
+}
+
+void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
+    if (m_vnodedisk == NULL || !m_vnodeloaded ) // To avoid any strange surprises
+        return;
 
     // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
+
+    m_vnodedisk->closeVNode();
     m_vnodedisk->detach(this);
 
     if (!m_vnodedisk->terminate(kIOServiceRequired | kIOServiceSynchronous))
         IOLog("Error at terminating device\n");
 
-    super::stop(provider);
+    m_vnodeloaded = false;
 }
