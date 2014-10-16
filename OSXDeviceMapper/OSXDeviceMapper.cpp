@@ -119,8 +119,9 @@ void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
     m_vnodedisk->closeVNode();
     m_vnodedisk->detach(this);
 
-    if (!m_vnodedisk->terminate(kIOServiceRequired | kIOServiceSynchronous))
+    if (!m_vnodedisk->terminate(kIOServiceRequired))
         IOLog("Error at terminating device\n");
 
     m_vnodeloaded = false;
 }
+

@@ -84,6 +84,17 @@ bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
         return false;
     }
 
+    struct vnode_attr vap;
+    if (vnode_getattr(m_loop_file, &vap, vfs_context)) {
+        IOLog("Error when retrieving vnode's attributes\n");
+        return false;
+    }
+
+    if (vap.va_data_size < LOOPDEVICE_BLOCK_SIZE * LOOPDEVICE_BLOCK_NUM) {
+        IOLog("Error file %s is too small\n", LOOPDEVICE_FILE_PATH);
+        return false;
+    }
+
     vfs_context_rele(vfs_context);
 
     return true;
