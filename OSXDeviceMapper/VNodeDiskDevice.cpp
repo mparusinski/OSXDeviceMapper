@@ -29,6 +29,7 @@
 #include <IOKit/IOReturn.h>
 #include <sys/types.h>
 #include "OSXDeviceMapper.h"
+
 #include "VNodeDiskDevice.h"
 
 OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskDevice, IOBlockStorageDevice)
@@ -40,6 +41,10 @@ bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
 {
     if (super::init(dict)) {
         IOLog("Initializing device\n");
+        m_additional_information = (char *) "";
+        m_product_string = (char *) (PROJECT "_" COMPONENT);
+        m_revision_string = (char *) VERSION;
+        m_vendor_string = (char *) DEVELOPER;
         m_loop_file = NULL;
         return true;
     } else {
@@ -64,40 +69,40 @@ IOService *com_parusinskimichal_VNodeDiskDevice::probe(IOService *provider,
 }
 
 bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
-    if (m_loop_file != NULL)
-        return true;
+   if (m_loop_file != NULL)
+       return true;
 
-    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+   vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
 
-    int vnode_error = vnode_open(LOOPDEVICE_FILE_PATH, (FREAD | FWRITE), 0, 0,
-        &m_loop_file, vfs_context);
+   int vnode_error = vnode_open(LOOPDEVICE_FILE_PATH, (FREAD | FWRITE), 0, 0,
+       &m_loop_file, vfs_context);
 
-    if (vnode_error || m_loop_file == NULL) {
-        IOLog("Error when opening file %s: error %d\n",
-            LOOPDEVICE_FILE_PATH, vnode_error);
-        return false;
-    }
-    
-    if (!vnode_isreg(m_loop_file)) {
-        IOLog("Error when opening file %s: not a regular file\n", LOOPDEVICE_FILE_PATH);
-        vnode_close(m_loop_file, (FREAD | FWRITE), vfs_context);
-        return false;
-    }
+   if (vnode_error || m_loop_file == NULL) {
+       IOLog("Error when opening file %s: error %d\n",
+           LOOPDEVICE_FILE_PATH, vnode_error);
+       return false;
+   }
+   
+   if (!vnode_isreg(m_loop_file)) {
+       IOLog("Error when opening file %s: not a regular file\n", LOOPDEVICE_FILE_PATH);
+       vnode_close(m_loop_file, (FREAD | FWRITE), vfs_context);
+       return false;
+   }
 
-    struct vnode_attr vap;
-    if (vnode_getattr(m_loop_file, &vap, vfs_context)) {
-        IOLog("Error when retrieving vnode's attributes\n");
-        return false;
-    }
+   struct vnode_attr vap;
+   if (vnode_getattr(m_loop_file, &vap, vfs_context)) {
+       IOLog("Error when retrieving vnode's attributes\n");
+       return false;
+   }
 
-    if (vap.va_data_size < LOOPDEVICE_BLOCK_SIZE * LOOPDEVICE_BLOCK_NUM) {
-        IOLog("Error file %s is too small\n", LOOPDEVICE_FILE_PATH);
-        return false;
-    }
+   if (vap.va_data_size < LOOPDEVICE_BLOCK_SIZE * LOOPDEVICE_BLOCK_NUM) {
+       IOLog("Error file %s is too small\n", LOOPDEVICE_FILE_PATH);
+       return false;
+   }
 
-    vfs_context_rele(vfs_context);
+   vfs_context_rele(vfs_context);
 
-    return true;
+   return true;
 }
 
 bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
@@ -111,13 +116,13 @@ bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
 
 
 void com_parusinskimichal_VNodeDiskDevice::closeVNode() {
-    if (m_loop_file != NULL) {
-        IOLog("Closing the file node\n");
-        vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
-        vnode_close(m_loop_file, 0, vfs_context);
-        vfs_context_rele(vfs_context);
-        m_loop_file = NULL;
-    }
+   if (m_loop_file != NULL) {
+       IOLog("Closing the file node\n");
+       vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+       vnode_close(m_loop_file, 0, vfs_context);
+       vfs_context_rele(vfs_context);
+       m_loop_file = NULL;
+   }
 }
 
 void com_parusinskimichal_VNodeDiskDevice::stop(IOService *provider)
@@ -130,107 +135,90 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescript
     UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
     IOStorageCompletion *completion)
 {
-    if (m_loop_file == NULL)
-        return kIOReturnIOError;
+    return kIOReturnSuccess;
+    
+   if (m_loop_file == NULL)
+       return kIOReturnIOError;
 
-    IOReturn returnMessage = kIOReturnSuccess;
+   IOReturn returnMessage = kIOReturnSuccess;
 
-    if (block >= LOOPDEVICE_BLOCK_NUM) {
-        IOLog("Attempting to write outside vnode disk\n");
-        return kIOReturnOverrun;
-    }
+   if (block >= LOOPDEVICE_BLOCK_NUM) {
+       IOLog("Attempting to write outside vnode disk\n");
+       return kIOReturnOverrun;
+   }
 
-    IODirection direction = buffer->getDirection();
-    if ((direction != kIODirectionIn) && (direction != kIODirectionOut)) {
-        IOLog("No valid direction of transfer: required either in or out\n");
-        kIOReturnIOError;
-    }
+   IODirection direction = buffer->getDirection();
+   if ((direction != kIODirectionIn) && (direction != kIODirectionOut)) {
+       IOLog("No valid direction of transfer: required either in or out\n");
+       kIOReturnIOError;
+   }
 
-    UInt64 real_nblks = nblks;
-    if ((block + real_nblks - 1) >= LOOPDEVICE_BLOCK_NUM) {
-        IOLog("Adjusting block number of written\n");
-        real_nblks = LOOPDEVICE_BLOCK_NUM - block;
-    }
-    IOByteCount actualByteCount = real_nblks * LOOPDEVICE_BLOCK_SIZE;
-    off_t byteOffset = block * LOOPDEVICE_BLOCK_SIZE;
+   UInt64 real_nblks = nblks;
+   if ((block + real_nblks - 1) >= LOOPDEVICE_BLOCK_NUM) {
+       IOLog("Adjusting block number of written\n");
+       real_nblks = LOOPDEVICE_BLOCK_NUM - block;
+   }
+   IOByteCount actualByteCount = real_nblks * LOOPDEVICE_BLOCK_SIZE;
+   off_t byteOffset = block * LOOPDEVICE_BLOCK_SIZE;
 
-    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
-    proc_t proc = vfs_context_proc(vfs_context);
-    kauth_cred_t cr = vfs_context_ucred(vfs_context);
+   vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+   proc_t proc = vfs_context_proc(vfs_context);
+   kauth_cred_t cr = vfs_context_ucred(vfs_context);
 
-    int aresid = -1;
+   int aresid = -1;
 
-    char * raw_buffer = NULL;
-    raw_buffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
-    if (raw_buffer == NULL) {
-        IOLog("Unable to allocate buffer\n");
-        goto cleanup;
-    };
+   char * raw_buffer = NULL;
+   raw_buffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
+   if (raw_buffer == NULL) {
+       IOLog("Unable to allocate buffer\n");
+       goto cleanup;
+   };
 
-    IOLog("Performing operation on disk\n");
-    IOLog("Original block position %llu, block number %llu\n", block, nblks);
-    IOLog("Byte offset %llu, byte count %llu\n", byteOffset, actualByteCount);
-    IOLog("raw_buffer: %d\n", raw_buffer);
-    IOLog("vnodedevice: %d\n", m_loop_file);
+   if (direction == kIODirectionIn) {
+       IOLog("Reading from disk\n");
 
-    if (direction == kIODirectionIn) {
-        IOLog("Reading from disk\n");
+       // TODO: Remove warning (unsigned long long) -> int
+       int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
+           (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-        /*
-         * There is a mistake here in read callback. The following are probably
-         * wrong:
-         * 1 - actualByteCount value is wrong
-         * 2 - byteOffset value is wrong
-         * 3 - UIO_SYSSPACE should be replaced by UIO_USERSPACE
-         *
-         * Tried changing the value to actualByteCount and byteOffset and did
-         * not work
-         *
-         * Tried changing to UIO_USERSPACE, still does not work
-         */
-        // int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
-        //     actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
+       IOLog("Data was read\n");
 
-        int read_error = vn_rdwr(UIO_READ, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
+       if (read_error || aresid > 0) {
+           returnMessage = kIOReturnIOError;
+           goto cleanup;
+       }
 
-        IOLog("Data was read\n");
+       buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
 
-        if (read_error || aresid > 0) {
-            returnMessage = kIOReturnIOError;
-            goto cleanup;
-        }
+   } else { // (direction == kIODirectionOut)
+       IOLog("Writing to disk\n");
 
-        buffer->writeBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount);
+        buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
 
-    } else { // (direction == kIODirectionOut)
-        IOLog("Writing to disk\n");
+        // TODO: Remove warning (unsigned long long) -> int
+       int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
+           (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-         buffer->readBytes(block * LOOPDEVICE_BLOCK_SIZE, raw_buffer, actualByteCount); // first arg is offset
-
-        int write_error = vn_rdwr(UIO_WRITE, m_loop_file, (caddr_t) raw_buffer,
-            actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
-
-        if (write_error || aresid > 0)
-            goto cleanup;
-    }
+       if (write_error || aresid > 0)
+           goto cleanup;
+   }
 
 cleanup:
-    vfs_context_rele(vfs_context);
-    if (raw_buffer)
-        IOFree(raw_buffer, sizeof(char) * actualByteCount);
+   vfs_context_rele(vfs_context);
+   if (raw_buffer)
+       IOFree(raw_buffer, sizeof(char) * actualByteCount);
 
-    actualByteCount = actualByteCount > aresid ? actualByteCount - aresid : 0;
+   actualByteCount = actualByteCount > aresid ? actualByteCount - aresid : 0;
 
-    completion->action(completion->target, completion->parameter, kIOReturnSuccess, actualByteCount);
-    return returnMessage;
+   completion->action(completion->target, completion->parameter, kIOReturnSuccess, actualByteCount);
+   return returnMessage;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::doEjectMedia(void)
 {
     // Should this function not operate as expected one can try
-    com_parusinskimichal_OSXDeviceMapper *  kext_driver = (com_parusinskimichal_OSXDeviceMapper *) getProvider();
-    kext_driver->ejectVNode();
+//    com_parusinskimichal_OSXDeviceMapper *  kext_driver = (com_parusinskimichal_OSXDeviceMapper *) getProvider();
+//    kext_driver->ejectVNode();
     return kIOReturnSuccess;
 }
 
@@ -262,44 +250,24 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doSynchronizeCache(void)
     return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::doUnmap(IOBlockStorageDeviceExtent *extents,
-    UInt32 extentsCount, UInt32 options)
-{
-    // TODO: Unsure about this! Check
-    //       My guess is that the loop device will keep track of used disk blocks
-    IOLog("doUnmap called (%u) extents and option %u\n", extentsCount, options);
-    if (options > 0) {
-        return kIOReturnUnsupported;
-    }
-
-    for (int i = 0; i < extentsCount; i++) {
-        UInt64 blockStart = extents[i].blockStart;
-        UInt64 blockCount = extents[i].blockCount;
-
-        // TODO: Implement discard this extent
-    }
-
-    return kIOReturnSuccess;
-}
-
 char * com_parusinskimichal_VNodeDiskDevice::getAdditionalDeviceInfoString(void)
 {
-    return "";
+    return m_additional_information;
 }
 
 char * com_parusinskimichal_VNodeDiskDevice::getProductString(void)
 {
-    return PROJECT "_" COMPONENT;
+    return m_product_string;
 }
 
 char * com_parusinskimichal_VNodeDiskDevice::getRevisionString(void)
 {
-    return VERSION;
+    return m_revision_string;
 }
 
 char * com_parusinskimichal_VNodeDiskDevice::getVendorString(void)
 {
-    return DEVELOPER;
+    return m_vendor_string;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::getWriteCacheState(bool *enabled)
@@ -316,7 +284,7 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::reportBlockSize(UInt64 *blockSize
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::reportEjectability(bool *isEjectable)
 {
-    *isEjectable = false;
+    *isEjectable = true;
     return kIOReturnSuccess;
 }
 
@@ -346,13 +314,6 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::reportWriteProtection(bool *isWri
     // Loop device is read/write (read-only support not offered yet)
     *isWriteProtected = false;
     return kIOReturnSuccess;
-}
-
-IOReturn com_parusinskimichal_VNodeDiskDevice::requestIdle(void)
-{
-    // Requesting a loop device to be idle is not supported (as it does not make sense)
-    IOLog("unsupported function call \"requestIdle\"\n");
-    return kIOReturnUnsupported;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::setWriteCacheState(bool enabled)

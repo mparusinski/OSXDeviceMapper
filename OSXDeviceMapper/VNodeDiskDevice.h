@@ -58,9 +58,9 @@ public:
 
     virtual void stop(IOService *provider);
 
-    bool setupVNode();
+   bool setupVNode();
 
-    void closeVNode();
+   void closeVNode();
 
     virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer,
         UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
@@ -74,9 +74,6 @@ public:
         UInt32 capacitiesMaxCount) const;
 
     virtual IOReturn doSynchronizeCache(void);
-
-    virtual IOReturn doUnmap( IOBlockStorageDeviceExtent *extents,
-        UInt32 extentsCount, UInt32 options = 0);
 
     virtual char * getAdditionalDeviceInfoString(void);
 
@@ -100,13 +97,15 @@ public:
 
     virtual IOReturn reportWriteProtection(bool *isWriteProtected);
 
-    virtual IOReturn requestIdle(void);
-
     virtual IOReturn setWriteCacheState(bool enabled);
 
 private:
 
-    struct vnode * m_loop_file;
+   struct vnode * m_loop_file;
+    char * m_additional_information;
+    char * m_product_string;
+    char * m_revision_string;
+    char * m_vendor_string;
 
 };
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>643A5273-5C8A-4C01-9549-085AC22F7F8E</string>
+	<key>IDESourceControlProjectName</key>
+	<string>OSXDeviceMapper</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>F93F2EF2A320D69274CF86109CB80BA284F39BBA</key>
+		<string>github.com:mparusinski/OSXDeviceMapper.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>OSXDeviceMapper.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>F93F2EF2A320D69274CF86109CB80BA284F39BBA</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:mparusinski/OSXDeviceMapper.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>F93F2EF2A320D69274CF86109CB80BA284F39BBA</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F93F2EF2A320D69274CF86109CB80BA284F39BBA</string>
+			<key>IDESourceControlWCCName</key>
+			<string>OSXDeviceMapper</string>
+		</dict>
+	</array>
+</dict>
+</plist>

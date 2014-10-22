@@ -69,35 +69,36 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
     if (!super::start(provider))
         return false;
 
-    m_vnodedisk = NULL;
-    m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
+   m_vnodedisk = NULL;
+   m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
 
-    if (!m_vnodedisk)
-        return false;
+   if (!m_vnodedisk)
+       return false;
 
-    OSDictionary * dictionary = 0;
-    if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
-        goto cleanup;   
+   OSDictionary * dictionary = 0;
+   if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
+       goto cleanup;   
 
-    if (!m_vnodedisk->setupVNode())
-        goto cleanup;
+   if (!m_vnodedisk->setupVNode())
+       goto cleanup;
 
-    if (!m_vnodedisk->attach(this))
-        goto cleanup;
+   if (!m_vnodedisk->attach(this))
+       goto cleanup;
 
-    m_vnodedisk->registerService(kIOServiceSynchronous);
+   m_vnodedisk->registerService(kIOServiceSynchronous);
 
-    m_vnodedisk->release();
+   m_vnodedisk->release();
 
-    m_vnodeloaded = true;
+   m_vnodeloaded = true;
 
-    return true;
+   return true;
 
 cleanup:
-    if (m_vnodedisk != NULL) {
-        m_vnodedisk->closeVNode();
-        m_vnodedisk->free();
-    }
+   if (m_vnodedisk != NULL) {
+       m_vnodedisk->closeVNode();
+       m_vnodedisk->release();
+       m_vnodeloaded = false;
+   }
 
     return false;
 }
@@ -111,16 +112,17 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 }
 
 void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
-    if (m_vnodedisk == NULL || !m_vnodeloaded ) // To avoid any strange surprises
-        return;
+   if (m_vnodedisk == NULL || !m_vnodeloaded ) // To avoid any strange surprises
+       return;
 
-    // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
+   // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
 
-    m_vnodedisk->closeVNode();
-    m_vnodedisk->detach(this);
+   m_vnodedisk->detach(this);
+   m_vnodedisk->closeVNode();
+   m_vnodedisk->release();
 
-    if (!m_vnodedisk->terminate(kIOServiceRequired))
-        IOLog("Error at terminating device\n");
+   if (!m_vnodedisk->terminate(kIOServiceRequired))
+       IOLog("Error at terminating device\n");
 
     m_vnodeloaded = false;
 }
