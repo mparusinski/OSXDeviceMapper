@@ -80,29 +80,32 @@ bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
    if (vnode_error || m_loop_file == NULL) {
        IOLog("Error when opening file %s: error %d\n",
            LOOPDEVICE_FILE_PATH, vnode_error);
-       return false;
+       goto failure;
    }
    
    if (!vnode_isreg(m_loop_file)) {
        IOLog("Error when opening file %s: not a regular file\n", LOOPDEVICE_FILE_PATH);
        vnode_close(m_loop_file, (FREAD | FWRITE), vfs_context);
-       return false;
+       goto failure;
    }
 
    struct vnode_attr vap;
    if (vnode_getattr(m_loop_file, &vap, vfs_context)) {
        IOLog("Error when retrieving vnode's attributes\n");
-       return false;
+       goto failure;
    }
 
    if (vap.va_data_size < LOOPDEVICE_BLOCK_SIZE * LOOPDEVICE_BLOCK_NUM) {
        IOLog("Error file %s is too small\n", LOOPDEVICE_FILE_PATH);
-       return false;
+       goto failure;
    }
 
    vfs_context_rele(vfs_context);
-
    return true;
+
+failure:
+   vfs_context_rele(vfs_context);
+   return false;
 }
 
 bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
@@ -134,9 +137,7 @@ void com_parusinskimichal_VNodeDiskDevice::stop(IOService *provider)
 IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(IOMemoryDescriptor *buffer,
     UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
     IOStorageCompletion *completion)
-{
-    return kIOReturnSuccess;
-    
+{    
    if (m_loop_file == NULL)
        return kIOReturnIOError;
 
@@ -217,8 +218,8 @@ cleanup:
 IOReturn com_parusinskimichal_VNodeDiskDevice::doEjectMedia(void)
 {
     // Should this function not operate as expected one can try
-//    com_parusinskimichal_OSXDeviceMapper *  kext_driver = (com_parusinskimichal_OSXDeviceMapper *) getProvider();
-//    kext_driver->ejectVNode();
+    com_parusinskimichal_OSXDeviceMapper *  kext_driver = (com_parusinskimichal_OSXDeviceMapper *) getProvider();
+    kext_driver->ejectVNode();
     return kIOReturnSuccess;
 }
 
@@ -304,20 +305,17 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::reportMediaState(bool *mediaPrese
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::reportRemovability(bool *isRemovable)
 {
-    // TODO: Make sure this is valid
     *isRemovable = true;
     return kIOReturnSuccess;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::reportWriteProtection(bool *isWriteProtected)
 {
-    // Loop device is read/write (read-only support not offered yet)
     *isWriteProtected = false;
     return kIOReturnSuccess;
 }
 
 IOReturn com_parusinskimichal_VNodeDiskDevice::setWriteCacheState(bool enabled)
 {
-    // TODO: Determine if a write cache is required
     return kIOReturnUnsupported;
 }

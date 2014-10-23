@@ -38,7 +38,6 @@ bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
 {
     if (super::init(dict)) {
         IOLog("Initializing driver\n");
-        m_vnodeloaded = false;
         return true;
     } else {
         IOLog("Unsucessfuly initialised parent\n");
@@ -70,37 +69,30 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
         return false;
 
    m_vnodedisk = NULL;
-   m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice;
+   m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice; // sets the reference count to 1
 
    if (!m_vnodedisk)
        return false;
 
    OSDictionary * dictionary = 0;
-   if (!m_vnodedisk->init(dictionary)) // not sure if other stuff should be in the dictionary
-       goto cleanup;   
+   if (!m_vnodedisk->init(dictionary)) {
+       m_vnodedisk->release();
+       return false;
+   }
 
-   if (!m_vnodedisk->setupVNode())
-       goto cleanup;
+   if (!m_vnodedisk->setupVNode()) {
+       m_vnodedisk->release();
+       return false;
+   }
 
-   if (!m_vnodedisk->attach(this))
-       goto cleanup;
+   if (!m_vnodedisk->attach(this)) { // retains both this and m_vnodedisk (reference count + 1)
+      m_vnodedisk->release();
+      return false;
+   }
 
    m_vnodedisk->registerService(kIOServiceSynchronous);
 
-   m_vnodedisk->release();
-
-   m_vnodeloaded = true;
-
    return true;
-
-cleanup:
-   if (m_vnodedisk != NULL) {
-       m_vnodedisk->closeVNode();
-       m_vnodedisk->release();
-       m_vnodeloaded = false;
-   }
-
-    return false;
 }
 
 void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
@@ -112,18 +104,16 @@ void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
 }
 
 void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
-   if (m_vnodedisk == NULL || !m_vnodeloaded ) // To avoid any strange surprises
+   if (m_vnodedisk == NULL) // To avoid any strange surprises
        return;
 
-   // If there is a bug stating that vnode can't be unloading when using kextunload try uncomment next line
+   m_vnodedisk->retain(); // prevent any strange surprises
 
-   m_vnodedisk->detach(this);
-   m_vnodedisk->closeVNode();
-   m_vnodedisk->release();
-
-   if (!m_vnodedisk->terminate(kIOServiceRequired))
+   if (!m_vnodedisk->terminate(kIOServiceRequired)) // first unregister the service
        IOLog("Error at terminating device\n");
 
-    m_vnodeloaded = false;
+    m_vnodedisk->detach(this); // this should release the vnode
+    m_vnodedisk->closeVNode();
+    m_vnodedisk->release();
 }
 
