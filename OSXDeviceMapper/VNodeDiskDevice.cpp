@@ -69,6 +69,9 @@ IOService *com_parusinskimichal_VNodeDiskDevice::probe(IOService *provider,
 }
 
 bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
+   int vap_error = -1;
+   struct vnode_attr vap;
+
    if (m_loop_file != NULL)
        return true;
 
@@ -89,14 +92,16 @@ bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
        goto failure;
    }
 
-   struct vnode_attr vap;
-   if (vnode_getattr(m_loop_file, &vap, vfs_context)) {
-       IOLog("Error when retrieving vnode's attributes\n");
+   VATTR_INIT(&vap);
+   VATTR_WANTED(&vap, va_data_size);
+   vnode_getattr(m_loop_file, &vap, vfs_context);
+   if (vap_error) {
+       IOLog("Error when retrieving vnode's attributes with error code %d\n", vap_error);
        goto failure;
    }
 
    if (vap.va_data_size < LOOPDEVICE_BLOCK_SIZE * LOOPDEVICE_BLOCK_NUM) {
-       IOLog("Error file %s is too small\n", LOOPDEVICE_FILE_PATH);
+       IOLog("Error file %s is too small, actual size is %llu\n", LOOPDEVICE_FILE_PATH, vap.va_data_size);
        goto failure;
    }
 

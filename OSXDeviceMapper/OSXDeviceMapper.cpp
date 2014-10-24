@@ -107,8 +107,6 @@ void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
    if (m_vnodedisk == NULL) // To avoid any strange surprises
        return;
 
-   m_vnodedisk->retain(); // prevent any strange surprises
-
    if (!m_vnodedisk->terminate(kIOServiceRequired)) // first unregister the service
        IOLog("Error at terminating device\n");
 
