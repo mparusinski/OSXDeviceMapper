@@ -35,6 +35,10 @@
 
 #include "VNodeDiskDevice.h"
 
+#define DEVELOPER "Michal Parusinski"
+#define PROJECT "OSXDeviceMapper"
+#define VERSION "0.1"
+
 class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
     OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
@@ -50,10 +54,11 @@ public:
 
     virtual void stop(IOService *provider);
 
-    virtual void ejectVNode();
+    void ejectVNode();
 
 private:
     com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
+    bool m_vnodeloaded;
 
 };
 

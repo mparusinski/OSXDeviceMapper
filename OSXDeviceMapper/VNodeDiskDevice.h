@@ -38,10 +38,7 @@
 #define LOOPDEVICE_BLOCK_NUM 256 // TO MAKE 1 MB the minimum
 
 // TODO: Add a project defines header and rename the class to something more appropriate
-#define DEVELOPER "Michal Parusinski"
-#define PROJECT "OSXDeviceMapper"
 #define COMPONENT "VNodeDiskDevice"
-#define VERSION "0.1"
 
 class com_parusinskimichal_VNodeDiskDevice : public IOBlockStorageDevice
 {

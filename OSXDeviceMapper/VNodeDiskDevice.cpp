@@ -94,7 +94,7 @@ bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
 
    VATTR_INIT(&vap);
    VATTR_WANTED(&vap, va_data_size);
-   vnode_getattr(m_loop_file, &vap, vfs_context);
+   vap_error = vnode_getattr(m_loop_file, &vap, vfs_context);
    if (vap_error) {
        IOLog("Error when retrieving vnode's attributes with error code %d\n", vap_error);
        goto failure;
