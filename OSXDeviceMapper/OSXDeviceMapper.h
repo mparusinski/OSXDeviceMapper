@@ -41,24 +41,24 @@
 
 class com_parusinskimichal_OSXDeviceMapper : public IOService
 {
-    OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
+  OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
 
 public:
-    virtual bool init(OSDictionary *dictionary = 0);
+  virtual bool init(OSDictionary *dictionary = 0);
 
-    virtual void free(void);
+  virtual void free(void);
 
-    virtual IOService *probe(IOService *provider, SInt32 *score);
+  virtual IOService *probe(IOService *provider, SInt32 *score);
 
-    virtual bool start(IOService *provider);
+  virtual bool start(IOService *provider);
 
-    virtual void stop(IOService *provider);
+  virtual void stop(IOService *provider);
 
-    void ejectVNode();
+  void ejectVNode();
 
 private:
-    com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
-    bool m_vnodeloaded;
+  com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
+  bool m_vnodeloaded;
 
 };
 

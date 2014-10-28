@@ -42,67 +42,67 @@
 
 class com_parusinskimichal_VNodeDiskDevice : public IOBlockStorageDevice
 {
-    OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice)
+  OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice)
 
 public:
-    virtual bool init(OSDictionary *dictionary = 0);
+  virtual bool init(OSDictionary *dictionary = 0);
 
-    virtual void free(void);
+  virtual void free(void);
 
-    virtual IOService *probe(IOService *provider, SInt32 *score);
+  virtual IOService *probe(IOService *provider, SInt32 *score);
 
-    virtual bool start(IOService *provider);
+  virtual bool start(IOService *provider);
 
-    virtual void stop(IOService *provider);
+  virtual void stop(IOService *provider);
 
-   bool setupVNode();
+  bool setupVNode();
 
-   void closeVNode();
+  void closeVNode();
 
-    virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer,
-        UInt64 block, UInt64 nblks, IOStorageAttributes *attributes,
-        IOStorageCompletion *completion);
+  virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer, UInt64 block, 
+    UInt64 nblks, IOStorageAttributes *attributes, 
+    IOStorageCompletion *completion);
 
-    virtual IOReturn doEjectMedia(void);
+  virtual IOReturn doEjectMedia(void);
 
-    virtual IOReturn doFormatMedia( UInt64 byteCapacity);
+  virtual IOReturn doFormatMedia( UInt64 byteCapacity);
 
-    virtual UInt32 doGetFormatCapacities( UInt64 *capacities,
-        UInt32 capacitiesMaxCount) const;
+  virtual UInt32 doGetFormatCapacities( UInt64 *capacities,
+    UInt32 capacitiesMaxCount) const;
 
-    virtual IOReturn doSynchronizeCache(void);
+  virtual IOReturn doSynchronizeCache(void);
 
-    virtual char * getAdditionalDeviceInfoString(void);
+  virtual char * getAdditionalDeviceInfoString(void);
 
-    virtual char * getProductString(void);
+  virtual char * getProductString(void);
 
-    virtual char * getRevisionString(void);
+  virtual char * getRevisionString(void);
 
-    virtual char * getVendorString(void);
+  virtual char * getVendorString(void);
 
-    virtual IOReturn getWriteCacheState(bool *enabled);
+  virtual IOReturn getWriteCacheState(bool *enabled);
 
-    virtual IOReturn reportBlockSize(UInt64 *blockSize);
+  virtual IOReturn reportBlockSize(UInt64 *blockSize);
 
-    virtual IOReturn reportEjectability(bool *isEjectable);
+  virtual IOReturn reportEjectability(bool *isEjectable);
 
-    virtual IOReturn reportMaxValidBlock(UInt64 *maxBlock);
+  virtual IOReturn reportMaxValidBlock(UInt64 *maxBlock);
 
-    virtual IOReturn reportMediaState(bool *mediaPresent, bool *changedState = 0);
+  virtual IOReturn reportMediaState(bool *mediaPresent, bool *changedState = 0);
 
-    virtual IOReturn reportRemovability(bool *isRemovable);
+  virtual IOReturn reportRemovability(bool *isRemovable);
 
-    virtual IOReturn reportWriteProtection(bool *isWriteProtected);
+  virtual IOReturn reportWriteProtection(bool *isWriteProtected);
 
-    virtual IOReturn setWriteCacheState(bool enabled);
+  virtual IOReturn setWriteCacheState(bool enabled);
 
 private:
 
-   struct vnode * m_loop_file;
-    char * m_additional_information;
-    char * m_product_string;
-    char * m_revision_string;
-    char * m_vendor_string;
+  struct vnode * m_loop_file;
+  char * m_additional_information;
+  char * m_product_string;
+  char * m_revision_string;
+  char * m_vendor_string;
 
 };
 
