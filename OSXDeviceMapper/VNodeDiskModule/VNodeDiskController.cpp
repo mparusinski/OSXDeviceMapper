@@ -25,41 +25,49 @@
 
  */
 
-#ifndef _OSX_DEVICE_MAPPER_
-#define _OSX_DEVICE_MAPPER_
+#include <IOKit/IOLib.h>
+#include "VNodeDiskController.h"
 
-#include <sys/fcntl.h>
-#include <sys/vnode.h>
+OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskController, IOService)
 
-#include <IOKit/IOService.h>
+#define super IOService
 
-#include "VNodeDiskModule/VNodeDiskDevice.h"
-
-#define DEVELOPER "Michal Parusinski"
-#define PROJECT "OSXDeviceMapper"
-#define VERSION "0.1"
-
-class com_parusinskimichal_OSXDeviceMapper : public IOService
+bool com_parusinskimichal_VNodeDiskController::init(OSDictionary *dict)
 {
-  OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
+  if (super::init(dict)) {
+    IOLog("Initializing VNodeDisk controller\n");
+    return true;
+  } else {
+    IOLog("Unsucessfuly initialised parent\n");
+    return false;
+  }
+}
 
-public:
-  virtual bool init(OSDictionary *dictionary = 0);
+void com_parusinskimichal_VNodeDiskController::free(void)
+{
+  IOLog("Freeing the VNodeDisk controller\n");
+  super::free();
+}
 
-  virtual void free(void);
+IOService *com_parusinskimichal_VNodeDiskController::probe(IOService *provider,
+  SInt32 *score)
+{
+  IOService *result = super::probe(provider, score);
+  IOLog("Probing the VNodeDisk controller\n");
+  return result;
+}
 
-  virtual IOService *probe(IOService *provider, SInt32 *score);
+bool com_parusinskimichal_VNodeDiskController::start(IOService *provider)
+{
+  IOLog("Starting the VNodeDisk controller\n");
+  if (!super::start(provider))
+    return false;
+  return true;
+}
 
-  virtual bool start(IOService *provider);
+void com_parusinskimichal_VNodeDiskController::stop(IOService *provider)
+{
+  IOLog("Stopping the VNodeDisk controller\n");
+  super::stop(provider);
+}
 
-  virtual void stop(IOService *provider);
-
-  void ejectVNode();
-
-private:
-  com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
-  bool m_vnodeloaded;
-
-};
-
-#endif  // _OSX_DEVICE_MAPPER_

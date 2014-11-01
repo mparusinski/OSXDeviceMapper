@@ -59,6 +59,9 @@ public:
 
   void closeVNode();
 
+  static com_parusinskimichal_VNodeDiskDevice * withFilePathAndBlockSizeAndBlockNum(
+    const char * filePath, const UInt64 blockSize, const UInt64 blockNum);
+
   virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer, UInt64 block, 
     UInt64 nblks, IOStorageAttributes *attributes, 
     IOStorageCompletion *completion);
@@ -97,12 +100,14 @@ public:
   virtual IOReturn setWriteCacheState(bool enabled);
 
 private:
-
-  struct vnode * m_loop_file;
+  struct vnode * m_vnode;
+  OSString * m_file_path;
   char * m_additional_information;
   char * m_product_string;
   char * m_revision_string;
   char * m_vendor_string;
+  UInt64 m_block_size;
+  UInt64 m_block_num;
 
 };
 

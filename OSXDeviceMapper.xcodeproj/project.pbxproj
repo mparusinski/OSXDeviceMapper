@@ -9,13 +9,17 @@
 /* Begin PBXBuildFile section */
 		BA1B86EF19C8C0DC00B518A7 /* VNodeDiskDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA1B86ED19C8C0DC00B518A7 /* VNodeDiskDevice.cpp */; };
 		BA1B86F019C8C0DC00B518A7 /* VNodeDiskDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = BA1B86EE19C8C0DC00B518A7 /* VNodeDiskDevice.h */; };
+		BA3F15641A02B2B9009EA9EB /* VNodeDiskController.h in Headers */ = {isa = PBXBuildFile; fileRef = BA3F15631A02B2B9009EA9EB /* VNodeDiskController.h */; };
+		BA3F15661A02B2D9009EA9EB /* VNodeDiskController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA3F15651A02B2D9009EA9EB /* VNodeDiskController.cpp */; };
 		BAF8F841198028EE00C9D38E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BAF8F83F198028EE00C9D38E /* InfoPlist.strings */; };
 		BAF8F844198028EE00C9D38E /* OSXDeviceMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BA1B86ED19C8C0DC00B518A7 /* VNodeDiskDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VNodeDiskDevice.cpp; sourceTree = "<group>"; };
-		BA1B86EE19C8C0DC00B518A7 /* VNodeDiskDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNodeDiskDevice.h; sourceTree = "<group>"; };
+		BA1B86ED19C8C0DC00B518A7 /* VNodeDiskDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VNodeDiskDevice.cpp; path = VNodeDiskModule/VNodeDiskDevice.cpp; sourceTree = "<group>"; };
+		BA1B86EE19C8C0DC00B518A7 /* VNodeDiskDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VNodeDiskDevice.h; path = VNodeDiskModule/VNodeDiskDevice.h; sourceTree = "<group>"; };
+		BA3F15631A02B2B9009EA9EB /* VNodeDiskController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VNodeDiskController.h; path = VNodeDiskModule/VNodeDiskController.h; sourceTree = "<group>"; };
+		BA3F15651A02B2D9009EA9EB /* VNodeDiskController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VNodeDiskController.cpp; path = VNodeDiskModule/VNodeDiskController.cpp; sourceTree = "<group>"; };
 		BAF8F837198028EE00C9D38E /* OSXDeviceMapper.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OSXDeviceMapper.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAF8F83B198028EE00C9D38E /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = System/Library/Frameworks/Kernel.framework; sourceTree = SDKROOT; };
 		BAF8F83E198028EE00C9D38E /* OSXDeviceMapper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OSXDeviceMapper-Info.plist"; sourceTree = "<group>"; };
@@ -36,6 +40,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA3F15621A02B27F009EA9EB /* VNodeDiskModule */ = {
+			isa = PBXGroup;
+			children = (
+				BA3F15651A02B2D9009EA9EB /* VNodeDiskController.cpp */,
+				BA1B86ED19C8C0DC00B518A7 /* VNodeDiskDevice.cpp */,
+				BA1B86EE19C8C0DC00B518A7 /* VNodeDiskDevice.h */,
+				BA3F15631A02B2B9009EA9EB /* VNodeDiskController.h */,
+			);
+			name = VNodeDiskModule;
+			sourceTree = "<group>";
+		};
 		BAF8F82C198028EE00C9D38E = {
 			isa = PBXGroup;
 			children = (
@@ -72,8 +87,7 @@
 		BAF8F83C198028EE00C9D38E /* OSXDeviceMapper */ = {
 			isa = PBXGroup;
 			children = (
-				BA1B86ED19C8C0DC00B518A7 /* VNodeDiskDevice.cpp */,
-				BA1B86EE19C8C0DC00B518A7 /* VNodeDiskDevice.h */,
+				BA3F15621A02B27F009EA9EB /* VNodeDiskModule */,
 				BAF8F842198028EE00C9D38E /* OSXDeviceMapper.h */,
 				BAF8F843198028EE00C9D38E /* OSXDeviceMapper.cpp */,
 				BAF8F83D198028EE00C9D38E /* Supporting Files */,
@@ -98,6 +112,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA3F15641A02B2B9009EA9EB /* VNodeDiskController.h in Headers */,
 				BA1B86F019C8C0DC00B518A7 /* VNodeDiskDevice.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -178,6 +193,7 @@
 			files = (
 				BAF8F844198028EE00C9D38E /* OSXDeviceMapper.cpp in Sources */,
 				BA1B86EF19C8C0DC00B518A7 /* VNodeDiskDevice.cpp in Sources */,
+				BA3F15661A02B2D9009EA9EB /* VNodeDiskController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

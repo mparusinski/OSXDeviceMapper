@@ -25,23 +25,14 @@
 
  */
 
-#ifndef _OSX_DEVICE_MAPPER_
-#define _OSX_DEVICE_MAPPER_
-
-#include <sys/fcntl.h>
-#include <sys/vnode.h>
+#ifndef _V_NODE_DISK_CONTROLLER_
+#define _V_NODE_DISK_CONTROLLER_
 
 #include <IOKit/IOService.h>
 
-#include "VNodeDiskModule/VNodeDiskDevice.h"
-
-#define DEVELOPER "Michal Parusinski"
-#define PROJECT "OSXDeviceMapper"
-#define VERSION "0.1"
-
-class com_parusinskimichal_OSXDeviceMapper : public IOService
+class com_parusinskimichal_VNodeDiskController : public IOService
 {
-  OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
+  OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskController)
 
 public:
   virtual bool init(OSDictionary *dictionary = 0);
@@ -54,12 +45,6 @@ public:
 
   virtual void stop(IOService *provider);
 
-  void ejectVNode();
-
-private:
-  com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
-  bool m_vnodeloaded;
-
 };
 
-#endif  // _OSX_DEVICE_MAPPER_
+#endif // _V_NODE_DISK_CONTROLLER_

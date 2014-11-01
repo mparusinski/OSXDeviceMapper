@@ -61,18 +61,18 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
 
 bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
 {
+	m_vnodedisk = NULL;
+
   IOLog("Starting the driver\n");
   if (!super::start(provider))
     return false;
 
-  m_vnodedisk = NULL;
-  m_vnodedisk = new com_parusinskimichal_VNodeDiskDevice; // sets the reference count to 1
+  m_vnodedisk = 
+  	com_parusinskimichal_VNodeDiskDevice::withFilePathAndBlockSizeAndBlockNum(
+  		"/tmp/vnodedevice", 4096, 256
+  	); // sets the reference count to 1
 
   if (!m_vnodedisk)
-    return false;
-
-  OSDictionary * dictionary = 0;
-  if (!m_vnodedisk->init(dictionary))
     goto bail;
 
   if (!m_vnodedisk->setupVNode())
@@ -85,8 +85,12 @@ bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
   m_vnodeloaded = true;
 
   return true;
+
 bail:
-  m_vnodedisk->release();
+  if (m_vnodedisk) {
+  	m_vnodedisk->release();
+  }
+
   return false;
 }
 
