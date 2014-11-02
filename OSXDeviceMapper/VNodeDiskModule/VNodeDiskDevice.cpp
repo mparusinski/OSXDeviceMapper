@@ -28,6 +28,7 @@
 #include <IOKit/IOLib.h>
 #include <IOKit/IOReturn.h>
 #include <sys/types.h>
+#include "VNodeDiskController.h"
 #include "OSXDeviceMapper.h"
 
 #include "VNodeDiskDevice.h"
@@ -313,8 +314,8 @@ cleanup:
 
 IOReturn VNodeDiskDeviceClass::doEjectMedia(void)
 {
-  OSXDeviceMapperClass * kextDriver = (OSXDeviceMapperClass *) getProvider();
-  kextDriver->ejectVNode();
+  VNodeDiskControllerClass * provider = (VNodeDiskControllerClass *) getProvider();
+  provider->deleteVNodeWithFilePath(m_filePath->getCStringNoCopy());
   return kIOReturnSuccess;
 }
 

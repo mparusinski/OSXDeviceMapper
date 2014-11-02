@@ -33,7 +33,7 @@
 
 #include <IOKit/IOService.h>
 
-#include "VNodeDiskModule/VNodeDiskDevice.h"
+#include "VNodeDiskModule/VNodeDiskController.h"
 
 #define DEVELOPER "Michal Parusinski"
 #define PROJECT "OSXDeviceMapper"
@@ -57,11 +57,8 @@ public:
 
   virtual void stop(IOService *provider);
 
-  void ejectVNode();
-
 private:
-  VNodeDiskDeviceClass * m_vnodeDisk;
-  bool m_vnodeLoaded;
+  VNodeDiskControllerClass * m_vnodeController;
 
 };
 

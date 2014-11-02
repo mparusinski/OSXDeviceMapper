@@ -29,6 +29,7 @@
 #define _V_NODE_DISK_CONTROLLER_
 
 #include <IOKit/IOService.h>
+ #include "VNodeDiskDevice.h"
 
 #define VNodeDiskControllerClass com_parusinskimichal_VNodeDiskController
 
@@ -41,11 +42,24 @@ public:
 
   virtual void free(void);
 
-  virtual IOService *probe(IOService *provider, SInt32 *score);
+  virtual IOService * probe(IOService *provider, SInt32 *score);
 
   virtual bool start(IOService *provider);
 
   virtual void stop(IOService *provider);
+
+  // Returns name of the device
+  bool createVNodeWithFilePathAndBlockSizeAndBlockNum(
+  	const char * filePath, UInt64 blockSize, UInt64 blockNum);
+
+  bool deleteVNodeWithFilePath(const char * filePath);
+
+  bool deleteAllVNodes();
+
+private:
+	bool deregisterVNode(VNodeDiskDeviceClass * vnodeDisk);
+
+	OSDictionary * m_VNodeLibraryByPath;
 
 };
 
