@@ -28,11 +28,11 @@
 #include <IOKit/IOLib.h>
 #include "VNodeDiskController.h"
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskController, IOService)
+OSDefineMetaClassAndStructors(VNodeDiskControllerClass, IOService)
 
 #define super IOService
 
-bool com_parusinskimichal_VNodeDiskController::init(OSDictionary *dict)
+bool VNodeDiskControllerClass::init(OSDictionary *dict)
 {
   if (super::init(dict)) {
     IOLog("Initializing VNodeDisk controller\n");
@@ -43,13 +43,13 @@ bool com_parusinskimichal_VNodeDiskController::init(OSDictionary *dict)
   }
 }
 
-void com_parusinskimichal_VNodeDiskController::free(void)
+void VNodeDiskControllerClass::free(void)
 {
   IOLog("Freeing the VNodeDisk controller\n");
   super::free();
 }
 
-IOService *com_parusinskimichal_VNodeDiskController::probe(IOService *provider,
+IOService *VNodeDiskControllerClass::probe(IOService *provider,
   SInt32 *score)
 {
   IOService *result = super::probe(provider, score);
@@ -57,7 +57,7 @@ IOService *com_parusinskimichal_VNodeDiskController::probe(IOService *provider,
   return result;
 }
 
-bool com_parusinskimichal_VNodeDiskController::start(IOService *provider)
+bool VNodeDiskControllerClass::start(IOService *provider)
 {
   IOLog("Starting the VNodeDisk controller\n");
   if (!super::start(provider))
@@ -65,7 +65,7 @@ bool com_parusinskimichal_VNodeDiskController::start(IOService *provider)
   return true;
 }
 
-void com_parusinskimichal_VNodeDiskController::stop(IOService *provider)
+void VNodeDiskControllerClass::stop(IOService *provider)
 {
   IOLog("Stopping the VNodeDisk controller\n");
   super::stop(provider);

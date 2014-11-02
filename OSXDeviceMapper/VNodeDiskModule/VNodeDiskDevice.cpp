@@ -32,44 +32,44 @@
 
 #include "VNodeDiskDevice.h"
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_VNodeDiskDevice, IOBlockStorageDevice)
+OSDefineMetaClassAndStructors(VNodeDiskDeviceClass, IOBlockStorageDevice)
 
 #define super IOBlockStorageDevice
 
-bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
+bool VNodeDiskDeviceClass::init(OSDictionary *dict)
 {
-  m_file_path = NULL;
+  m_filePath = NULL;
   m_vnode = NULL;
-  OSNumber * block_size_object = NULL;
-  OSNumber * block_num_object = NULL;
+  OSNumber * blockSizeObject = NULL;
+  OSNumber * blockNumObject = NULL;
 
   if (super::init(dict) && dict != NULL) {
     IOLog("Initializing device\n");
-    m_additional_information = (char *) "";
-    m_product_string = (char *) (PROJECT "_" COMPONENT);
-    m_revision_string = (char *) VERSION;
-    m_vendor_string = (char *) DEVELOPER;
+    m_additionalInformation = (char *) "";
+    m_productString = (char *) (PROJECT "_" COMPONENT);
+    m_revisionString = (char *) VERSION;
+    m_vendorString = (char *) DEVELOPER;
 
-    m_file_path = OSDynamicCast(OSString, dict->getObject("VNode File Path"));
-    if (!m_file_path) {
+    m_filePath = OSDynamicCast(OSString, dict->getObject("VNode File Path"));
+    if (!m_filePath) {
       IOLog("Missing file path parameter in VNode Disk\n");
       return false;
     }
-    m_file_path->retain();
+    m_filePath->retain();
 
-    block_size_object = OSDynamicCast(OSNumber, dict->getObject("Block Size"));
-    if (!block_size_object) {
+    blockSizeObject = OSDynamicCast(OSNumber, dict->getObject("Block Size"));
+    if (!blockSizeObject) {
       IOLog("Missing block size parameter\n");
       return false;
     }
-    m_block_size = block_size_object->unsigned64BitValue();
+    m_blockSize = blockSizeObject->unsigned64BitValue();
 
-    block_num_object = OSDynamicCast(OSNumber, dict->getObject("Block num"));
-    if (!block_num_object) {
+    blockNumObject = OSDynamicCast(OSNumber, dict->getObject("Block num"));
+    if (!blockNumObject) {
       IOLog("Missing block num parameter\n");
       return false;
     }
-    m_block_num = block_num_object->unsigned64BitValue();
+    m_blockNum = blockNumObject->unsigned64BitValue();
 
     return true;
   } else {
@@ -78,15 +78,15 @@ bool com_parusinskimichal_VNodeDiskDevice::init(OSDictionary *dict)
   }
 }
 
-void com_parusinskimichal_VNodeDiskDevice::free(void)
+void VNodeDiskDeviceClass::free(void)
 {
   IOLog("Freeing the device\n");
-  if (m_file_path)
-    m_file_path->release();
+  if (m_filePath)
+    m_filePath->release();
   super::free();
 }
 
-IOService *com_parusinskimichal_VNodeDiskDevice::probe(IOService *provider,
+IOService *VNodeDiskDeviceClass::probe(IOService *provider,
   SInt32 *score)
 {
   IOService *result = super::probe(provider, score);
@@ -94,54 +94,54 @@ IOService *com_parusinskimichal_VNodeDiskDevice::probe(IOService *provider,
   return result;
 }
 
-bool com_parusinskimichal_VNodeDiskDevice::setupVNode() {
-  int vap_error = -1;
+bool VNodeDiskDeviceClass::setupVNode() {
+  int vapError = -1;
   struct vnode_attr vap;
 
   if (m_vnode != NULL)
     return true;
 
-  vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
+  vfs_context_t vfsContext = vfs_context_create((vfs_context_t) 0);
 
-  int vnode_error = vnode_open(m_file_path->getCStringNoCopy(), (FREAD | FWRITE), 0, 0,
-    &m_vnode, vfs_context);
+  int vnodeError = vnode_open(m_filePath->getCStringNoCopy(), (FREAD | FWRITE), 0, 0,
+    &m_vnode, vfsContext);
 
-  if (vnode_error || m_vnode == NULL) {
+  if (vnodeError || m_vnode == NULL) {
     IOLog("Error when opening file %s: error %d\n", 
-      m_file_path->getCStringNoCopy(), vnode_error);
+      m_filePath->getCStringNoCopy(), vnodeError);
     goto failure;
   }
 
   if (!vnode_isreg(m_vnode)) {
     IOLog("Error when opening file %s: not a regular file\n", 
-      m_file_path->getCStringNoCopy());
-    vnode_close(m_vnode, (FREAD | FWRITE), vfs_context);
+      m_filePath->getCStringNoCopy());
+    vnode_close(m_vnode, (FREAD | FWRITE), vfsContext);
     goto failure;
   }
 
   VATTR_INIT(&vap);
   VATTR_WANTED(&vap, va_data_size);
-  vap_error = vnode_getattr(m_vnode, &vap, vfs_context);
-  if (vap_error) {
-    IOLog("Error when retrieving vnode's attributes with error code %d\n", vap_error);
+  vapError = vnode_getattr(m_vnode, &vap, vfsContext);
+  if (vapError) {
+    IOLog("Error when retrieving vnode's attributes with error code %d\n", vapError);
     goto failure;
   }
 
-  if (vap.va_data_size < m_block_size * m_block_num) {
+  if (vap.va_data_size < m_blockSize * m_blockNum) {
     IOLog("Error file %s is too small, actual size is %llu\n", 
-      m_file_path->getCStringNoCopy(), vap.va_data_size);
+      m_filePath->getCStringNoCopy(), vap.va_data_size);
     goto failure;
   }
 
-  vfs_context_rele(vfs_context);
+  vfs_context_rele(vfsContext);
   return true;
 
 failure:
-  vfs_context_rele(vfs_context);
+  vfs_context_rele(vfsContext);
   return false;
 }
 
-bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
+bool VNodeDiskDeviceClass::start(IOService *provider)
 {
   IOLog("Starting the device\n");
   if (!super::start(provider))
@@ -151,63 +151,63 @@ bool com_parusinskimichal_VNodeDiskDevice::start(IOService *provider)
 }
 
 
-void com_parusinskimichal_VNodeDiskDevice::closeVNode() 
+void VNodeDiskDeviceClass::closeVNode() 
 {
   if (m_vnode != NULL) {
     IOLog("Closing the file node\n");
-    vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
-    vnode_close(m_vnode, 0, vfs_context);
-    vfs_context_rele(vfs_context);
+    vfs_context_t vfsContext = vfs_context_create((vfs_context_t) 0);
+    vnode_close(m_vnode, 0, vfsContext);
+    vfs_context_rele(vfsContext);
     m_vnode = NULL;
   }
 }
 
-void com_parusinskimichal_VNodeDiskDevice::stop(IOService *provider)
+void VNodeDiskDeviceClass::stop(IOService *provider)
 {
   IOLog("Stopping the device\n");
   super::stop(provider);
 }
 
-com_parusinskimichal_VNodeDiskDevice * 
-com_parusinskimichal_VNodeDiskDevice::withFilePathAndBlockSizeAndBlockNum(
+VNodeDiskDeviceClass * 
+VNodeDiskDeviceClass::withFilePathAndBlockSizeAndBlockNum(
     const char * filePath, const UInt64 blockSize, const UInt64 blockNum)
 {
-  OSDictionary * vnode_params = NULL;
-  OSString * filePath_object = NULL;
-  OSNumber * blockSize_object = NULL;
-  OSNumber * blockNumber_object = NULL;
-  com_parusinskimichal_VNodeDiskDevice * instance = NULL;
+  OSDictionary * vnodeParams = NULL;
+  OSString * filePathObject = NULL;
+  OSNumber * blockSizeObject = NULL;
+  OSNumber * blockNumberObject = NULL;
+  VNodeDiskDeviceClass * instance = NULL;
 
-  vnode_params  = OSDictionary::withCapacity(4);
-  if (!vnode_params)
+  vnodeParams  = OSDictionary::withCapacity(4);
+  if (!vnodeParams)
     goto error;
 
-  filePath_object    = OSString::withCString(filePath);
-  if (!filePath_object)
+  filePathObject    = OSString::withCString(filePath);
+  if (!filePathObject)
     goto error;
 
-  blockSize_object   = OSNumber::withNumber(blockSize, 64);
-  if (!blockSize_object) 
+  blockSizeObject   = OSNumber::withNumber(blockSize, 64);
+  if (!blockSizeObject) 
     goto error;
 
-  blockNumber_object = OSNumber::withNumber(blockNum, 64);
-  if (!blockNumber_object)
+  blockNumberObject = OSNumber::withNumber(blockNum, 64);
+  if (!blockNumberObject)
     goto error;
 
-  if (!vnode_params->setObject(OSString::withCString("VNode File Path"), filePath_object))
+  if (!vnodeParams->setObject(OSString::withCString("VNode File Path"), filePathObject))
     goto error;
 
-  if (!vnode_params->setObject(OSString::withCString("Block Size"), blockSize_object))
+  if (!vnodeParams->setObject(OSString::withCString("Block Size"), blockSizeObject))
     goto error;
 
-  if (!vnode_params->setObject(OSString::withCString("Block num"), blockNumber_object))
+  if (!vnodeParams->setObject(OSString::withCString("Block num"), blockNumberObject))
     goto error;
 
-  instance = new com_parusinskimichal_VNodeDiskDevice;
+  instance = new VNodeDiskDeviceClass;
   if (!instance)
     goto error;
 
-  if (!instance->init(vnode_params))
+  if (!instance->init(vnodeParams))
     goto error;
 
   return instance;
@@ -216,22 +216,22 @@ error:
   if (!instance)
     instance->release();
 
-  if (!blockNumber_object)
-    blockNumber_object->release();
+  if (!blockNumberObject)
+    blockNumberObject->release();
 
-  if (!blockSize_object)
-    blockSize_object->release();
+  if (!blockSizeObject)
+    blockSizeObject->release();
 
-  if (!filePath_object)
-    filePath_object->release();
+  if (!filePathObject)
+    filePathObject->release();
 
-  if (!vnode_params)
-    vnode_params->release();
+  if (!vnodeParams)
+    vnodeParams->release();
 
   return NULL;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(
+IOReturn VNodeDiskDeviceClass::doAsyncReadWrite(
   IOMemoryDescriptor *buffer, UInt64 block, UInt64 nblks, 
   IOStorageAttributes *attributes, IOStorageCompletion *completion)
 {    
@@ -239,7 +239,7 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(
     return kIOReturnIOError;
 
   IOReturn returnMessage = kIOReturnSuccess;
-  if (block >= m_block_num) {
+  if (block >= m_blockNum) {
     IOLog("Attempting to write outside vnode disk\n");
     return kIOReturnOverrun;
   }
@@ -250,24 +250,24 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(
     kIOReturnIOError;
   }
 
-  UInt64 real_nblks = nblks;
-  if ((block + real_nblks - 1) >= m_block_num) {
+  UInt64 realNblks = nblks;
+  if ((block + realNblks - 1) >= m_blockNum) {
     IOLog("Adjusting block number of written\n");
-    real_nblks = m_block_num - block;
+    realNblks = m_blockNum - block;
   }
 
-  IOByteCount actualByteCount = real_nblks * m_block_size;
-  off_t byteOffset = block * m_block_size;
+  IOByteCount actualByteCount = realNblks * m_blockSize;
+  off_t byteOffset = block * m_blockSize;
 
-  vfs_context_t vfs_context = vfs_context_create((vfs_context_t) 0);
-  proc_t proc = vfs_context_proc(vfs_context);
-  kauth_cred_t cr = vfs_context_ucred(vfs_context);
+  vfs_context_t vfsContext = vfs_context_create((vfs_context_t) 0);
+  proc_t proc = vfs_context_proc(vfsContext);
+  kauth_cred_t cr = vfs_context_ucred(vfsContext);
 
   int aresid = -1;
 
-  char * raw_buffer = NULL;
-  raw_buffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
-  if (raw_buffer == NULL) {
+  char * rawBuffer = NULL;
+  rawBuffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
+  if (rawBuffer == NULL) {
     IOLog("Unable to allocate buffer\n");
     goto cleanup;
   }
@@ -276,33 +276,33 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::doAsyncReadWrite(
     IOLog("Reading from disk\n");
 
     // TODO: Remove warning (unsigned long long) -> int
-    int read_error = vn_rdwr(UIO_READ, m_vnode, (caddr_t) raw_buffer,
+    int readError = vn_rdwr(UIO_READ, m_vnode, (caddr_t) rawBuffer,
       (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
     IOLog("Data was read\n");
-    if (read_error || aresid > 0) {
+    if (readError || aresid > 0) {
       returnMessage = kIOReturnIOError;
       goto cleanup;
     }
 
-    buffer->writeBytes(block * m_block_size, raw_buffer, actualByteCount);
+    buffer->writeBytes(block * m_blockSize, rawBuffer, actualByteCount);
   } else { // (direction == kIODirectionOut)
     IOLog("Writing to disk\n");
 
-    buffer->readBytes(block * m_block_size, raw_buffer, actualByteCount); // first arg is offset
+    buffer->readBytes(block * m_blockSize, rawBuffer, actualByteCount); // first arg is offset
 
     // TODO: Remove warning (unsigned long long) -> int
-    int write_error = vn_rdwr(UIO_WRITE, m_vnode, (caddr_t) raw_buffer,
+    int writeError = vn_rdwr(UIO_WRITE, m_vnode, (caddr_t) rawBuffer,
       (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-    if (write_error || aresid > 0)
+    if (writeError || aresid > 0)
       goto cleanup;
   }
 
 cleanup:
-  vfs_context_rele(vfs_context);
-  if (raw_buffer)
-    IOFree(raw_buffer, sizeof(char) * actualByteCount);
+  vfs_context_rele(vfsContext);
+  if (rawBuffer)
+    IOFree(rawBuffer, sizeof(char) * actualByteCount);
 
   actualByteCount = actualByteCount > aresid ? actualByteCount - aresid : 0;
 
@@ -311,22 +311,21 @@ cleanup:
   return returnMessage;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::doEjectMedia(void)
+IOReturn VNodeDiskDeviceClass::doEjectMedia(void)
 {
-  com_parusinskimichal_OSXDeviceMapper *  kext_driver = 
-    (com_parusinskimichal_OSXDeviceMapper *) getProvider();
-  kext_driver->ejectVNode();
+  OSXDeviceMapperClass * kextDriver = (OSXDeviceMapperClass *) getProvider();
+  kextDriver->ejectVNode();
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::doFormatMedia( UInt64 byteCapacity)
+IOReturn VNodeDiskDeviceClass::doFormatMedia( UInt64 byteCapacity)
 {
   // Media is not formatted for now
   IOLog("formatting media is not supported\n");
   return kIOReturnSuccess; // TODO: This might cause an issue
 }
 
-UInt32 com_parusinskimichal_VNodeDiskDevice::doGetFormatCapacities( UInt64 *capacities,
+UInt32 VNodeDiskDeviceClass::doGetFormatCapacities( UInt64 *capacities,
   UInt32 capacitiesMaxCount) const
 {
   IOLog("Checking block capacity\n");
@@ -335,62 +334,62 @@ UInt32 com_parusinskimichal_VNodeDiskDevice::doGetFormatCapacities( UInt64 *capa
     return 0;
   }
 
-  capacities[0] = m_block_num * m_block_size;
+  capacities[0] = m_blockNum * m_blockSize;
   return 1;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::doSynchronizeCache(void)
+IOReturn VNodeDiskDeviceClass::doSynchronizeCache(void)
 {
   // no hardware cache to flush
   IOLog("no caching supported\n");
   return kIOReturnSuccess;
 }
 
-char * com_parusinskimichal_VNodeDiskDevice::getAdditionalDeviceInfoString(void)
+char * VNodeDiskDeviceClass::getAdditionalDeviceInfoString(void)
 {
-  return m_additional_information;
+  return m_additionalInformation;
 }
 
-char * com_parusinskimichal_VNodeDiskDevice::getProductString(void)
+char * VNodeDiskDeviceClass::getProductString(void)
 {
-  return m_product_string;
+  return m_productString;
 }
 
-char * com_parusinskimichal_VNodeDiskDevice::getRevisionString(void)
+char * VNodeDiskDeviceClass::getRevisionString(void)
 {
-  return m_revision_string;
+  return m_revisionString;
 }
 
-char * com_parusinskimichal_VNodeDiskDevice::getVendorString(void)
+char * VNodeDiskDeviceClass::getVendorString(void)
 {
-  return m_vendor_string;
+  return m_vendorString;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::getWriteCacheState(bool *enabled)
+IOReturn VNodeDiskDeviceClass::getWriteCacheState(bool *enabled)
 {
   *enabled = false;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportBlockSize(UInt64 *blockSize)
+IOReturn VNodeDiskDeviceClass::reportBlockSize(UInt64 *blockSize)
 {
-  *blockSize = m_block_size;
+  *blockSize = m_blockSize;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportEjectability(bool *isEjectable)
+IOReturn VNodeDiskDeviceClass::reportEjectability(bool *isEjectable)
 {
   *isEjectable = true;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportMaxValidBlock(UInt64 *maxBlock)
+IOReturn VNodeDiskDeviceClass::reportMaxValidBlock(UInt64 *maxBlock)
 {
-  *maxBlock = m_block_num - 1;
+  *maxBlock = m_blockNum - 1;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportMediaState(bool *mediaPresent,
+IOReturn VNodeDiskDeviceClass::reportMediaState(bool *mediaPresent,
     bool *changedState)
 {
   *mediaPresent = true;
@@ -398,19 +397,19 @@ IOReturn com_parusinskimichal_VNodeDiskDevice::reportMediaState(bool *mediaPrese
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportRemovability(bool *isRemovable)
+IOReturn VNodeDiskDeviceClass::reportRemovability(bool *isRemovable)
 {
   *isRemovable = true;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::reportWriteProtection(bool *isWriteProtected)
+IOReturn VNodeDiskDeviceClass::reportWriteProtection(bool *isWriteProtected)
 {
   *isWriteProtected = false;
   return kIOReturnSuccess;
 }
 
-IOReturn com_parusinskimichal_VNodeDiskDevice::setWriteCacheState(bool enabled)
+IOReturn VNodeDiskDeviceClass::setWriteCacheState(bool enabled)
 {
   return kIOReturnUnsupported;
 }

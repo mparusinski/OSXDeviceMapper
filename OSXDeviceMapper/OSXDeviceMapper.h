@@ -39,9 +39,12 @@
 #define PROJECT "OSXDeviceMapper"
 #define VERSION "0.1"
 
-class com_parusinskimichal_OSXDeviceMapper : public IOService
+// TODO: Change the name of this class away from OSXDeviceMapperClasse
+#define OSXDeviceMapperClass com_parusinskimichal_OSXDeviceMapper
+
+class OSXDeviceMapperClass : public IOService
 {
-  OSDeclareDefaultStructors(com_parusinskimichal_OSXDeviceMapper)
+  OSDeclareDefaultStructors(OSXDeviceMapperClass)
 
 public:
   virtual bool init(OSDictionary *dictionary = 0);
@@ -57,8 +60,8 @@ public:
   void ejectVNode();
 
 private:
-  com_parusinskimichal_VNodeDiskDevice * m_vnodedisk;
-  bool m_vnodeloaded;
+  VNodeDiskDeviceClass * m_vnodeDisk;
+  bool m_vnodeLoaded;
 
 };
 

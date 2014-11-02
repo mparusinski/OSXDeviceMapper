@@ -30,9 +30,11 @@
 
 #include <IOKit/IOService.h>
 
-class com_parusinskimichal_VNodeDiskController : public IOService
+#define VNodeDiskControllerClass com_parusinskimichal_VNodeDiskController
+
+class VNodeDiskControllerClass : public IOService
 {
-  OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskController)
+  OSDeclareDefaultStructors(VNodeDiskControllerClass)
 
 public:
   virtual bool init(OSDictionary *dictionary = 0);

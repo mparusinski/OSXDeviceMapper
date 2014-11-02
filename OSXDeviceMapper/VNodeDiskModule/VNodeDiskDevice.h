@@ -33,16 +33,14 @@
 
 #include <IOKit/storage/IOBlockStorageDevice.h>
 
-#define LOOPDEVICE_FILE_PATH "/tmp/vnodedevice"
-#define LOOPDEVICE_BLOCK_SIZE 4096 // 4K
-#define LOOPDEVICE_BLOCK_NUM 256 // TO MAKE 1 MB the minimum
-
 // TODO: Add a project defines header and rename the class to something more appropriate
 #define COMPONENT "VNodeDiskDevice"
 
-class com_parusinskimichal_VNodeDiskDevice : public IOBlockStorageDevice
+#define VNodeDiskDeviceClass com_parusinskimichal_VNodeDiskDevice
+
+class VNodeDiskDeviceClass : public IOBlockStorageDevice
 {
-  OSDeclareDefaultStructors(com_parusinskimichal_VNodeDiskDevice)
+  OSDeclareDefaultStructors(VNodeDiskDeviceClass)
 
 public:
   virtual bool init(OSDictionary *dictionary = 0);
@@ -59,7 +57,7 @@ public:
 
   void closeVNode();
 
-  static com_parusinskimichal_VNodeDiskDevice * withFilePathAndBlockSizeAndBlockNum(
+  static VNodeDiskDeviceClass * withFilePathAndBlockSizeAndBlockNum(
     const char * filePath, const UInt64 blockSize, const UInt64 blockNum);
 
   virtual IOReturn doAsyncReadWrite(IOMemoryDescriptor *buffer, UInt64 block, 
@@ -101,13 +99,13 @@ public:
 
 private:
   struct vnode * m_vnode;
-  OSString * m_file_path;
-  char * m_additional_information;
-  char * m_product_string;
-  char * m_revision_string;
-  char * m_vendor_string;
-  UInt64 m_block_size;
-  UInt64 m_block_num;
+  OSString * m_filePath;
+  char * m_additionalInformation;
+  char * m_productString;
+  char * m_revisionString;
+  char * m_vendorString;
+  UInt64 m_blockSize;
+  UInt64 m_blockNum;
 
 };
 

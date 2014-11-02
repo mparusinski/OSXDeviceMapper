@@ -29,15 +29,16 @@
 #include <IOKit/IOReturn.h>
 #include "OSXDeviceMapper.h"
 
-OSDefineMetaClassAndStructors(com_parusinskimichal_OSXDeviceMapper, IOService)
+OSDefineMetaClassAndStructors(OSXDeviceMapperClass, IOService)
 
 #define super IOService
 
-bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
+bool OSXDeviceMapperClass::init(OSDictionary *dict)
 {
   if (super::init(dict)) {
     IOLog("Initializing driver\n");
-    m_vnodeloaded = false;
+    m_vnodeLoaded = false;
+    m_vnodeDisk = NULL;
     return true;
   } else {
     IOLog("Unsucessfuly initialised parent\n");
@@ -45,13 +46,13 @@ bool com_parusinskimichal_OSXDeviceMapper::init(OSDictionary *dict)
   }
 }
 
-void com_parusinskimichal_OSXDeviceMapper::free(void)
+void OSXDeviceMapperClass::free(void)
 {
   IOLog("Freeing the driver\n");
   super::free();
 }
 
-IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
+IOService *OSXDeviceMapperClass::probe(IOService *provider,
   SInt32 *score)
 {
   IOService *result = super::probe(provider, score);
@@ -59,58 +60,56 @@ IOService *com_parusinskimichal_OSXDeviceMapper::probe(IOService *provider,
   return result;
 }
 
-bool com_parusinskimichal_OSXDeviceMapper::start(IOService *provider)
+bool OSXDeviceMapperClass::start(IOService *provider)
 {
-	m_vnodedisk = NULL;
-
   IOLog("Starting the driver\n");
   if (!super::start(provider))
     return false;
 
-  m_vnodedisk = 
-  	com_parusinskimichal_VNodeDiskDevice::withFilePathAndBlockSizeAndBlockNum(
+  m_vnodeDisk = 
+  	VNodeDiskDeviceClass::withFilePathAndBlockSizeAndBlockNum(
   		"/tmp/vnodedevice", 4096, 256
   	); // sets the reference count to 1
 
-  if (!m_vnodedisk)
+  if (!m_vnodeDisk)
     goto bail;
 
-  if (!m_vnodedisk->setupVNode())
+  if (!m_vnodeDisk->setupVNode())
     goto bail;
 
-  if (!m_vnodedisk->attach(this)) // retains both this and m_vnodedisk (reference count + 1)
+  if (!m_vnodeDisk->attach(this)) // retains both this and m_vnodeDisk (reference count + 1)
     goto bail;
 
-  m_vnodedisk->registerService(kIOServiceSynchronous); // makes the vnode available to upper level drivers which retain it
-  m_vnodeloaded = true;
+  m_vnodeDisk->registerService(kIOServiceSynchronous); // makes the vnode available to upper level drivers which retain it
+  m_vnodeLoaded = true;
 
   return true;
 
 bail:
-  if (m_vnodedisk) {
-  	m_vnodedisk->release();
+  if (m_vnodeDisk) {
+  	m_vnodeDisk->release();
   }
 
   return false;
 }
 
-void com_parusinskimichal_OSXDeviceMapper::stop(IOService *provider)
+void OSXDeviceMapperClass::stop(IOService *provider)
 {
   IOLog("Stopping the driver\n");
   ejectVNode();
   super::stop(provider);
 }
 
-void com_parusinskimichal_OSXDeviceMapper::ejectVNode() {
+void OSXDeviceMapperClass::ejectVNode() {
   IOLog("Trying to eject VNode\n");
-  if (m_vnodedisk == NULL || !m_vnodeloaded)
+  if (m_vnodeDisk == NULL || !m_vnodeLoaded)
     return;
 
-  if (!m_vnodedisk->terminate(kIOServiceRequired)) // undoes register service
+  if (!m_vnodeDisk->terminate(kIOServiceRequired)) // undoes register service
     IOLog("Error when unregistering the device\n");
 
   // m_vnodedisk->detach(this); // this seems unecessary
-  m_vnodedisk->closeVNode();
-  m_vnodeloaded = false;
-  m_vnodedisk->release();
+  m_vnodeDisk->closeVNode();
+  m_vnodeLoaded = false;
+  m_vnodeDisk->release();
 }
