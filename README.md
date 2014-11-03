@@ -69,7 +69,7 @@ from XCode.
 This tool was created to enable compilation without having XCode running, 
 which is quite useful when running an OS X virtual machine, a browser, 
 a fancy code editor, a terminal and iTunes and system memory becomes 
-scarces. The tool also verify the Kext is properly linked and verifies it 
+scarce. The tool also verify the Kext is properly linked and verifies it 
 is loadable. In other words it goes further than compiling using XCode.
 
 Syntax:
@@ -79,7 +79,7 @@ Syntax:
 ```
 
 Both arguments are optional. 
-* The first option tells whether to create a Debug build
+* The first option tells whether to create a debug build
   or a release build. It defaults to Release
 * The second argument if specified tells the build script
   to copy the build artifacts to the specified folder.
@@ -95,17 +95,17 @@ a Yosemite virtual machine running on VMWare Fusion. Technically this
 can be done on any OS X machine but bear in mind any bugs may restart 
 the machine.
 
-1 - You first need to copy the Kext to the test machine.
-2 - Copy the kernel extension over to the /tmp folder as this will
+1. You first need to copy the Kext to the test machine.
+2. Copy the kernel extension over to the /tmp folder as this will
     guarantee the appropriate permissions on the kernel extension.
     ```shell
     sudo cp -Rv /path/to/kext /tmp/
     ```
-3 - Load the kext using the following command
+3. Load the kext using the following command
     ```shell
     sudo kextload /tmp/OSXDeviceMapper.kext
     ```
-4 - Unload the kext using the following command
+4. Unload the kext using the following command
     ```shell
     sudo kextunload /tmp/OSXDeviceMapper.kext
     ```
