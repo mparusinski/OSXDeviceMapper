@@ -77,7 +77,7 @@ bool OSXDeviceMapperClass::start(IOService *provider)
   m_vnodeController->attach(this);
 
   m_vnodeController->createVNodeWithFilePathAndBlockSizeAndBlockNum(
-    "/tmp/vnodedevice", 4096, 256);
+    "/tmp/vnodedevice", 4096, 1024); // 4096 * 8192 = 4KB * 1KB = 4MB
 
   return true;
 }

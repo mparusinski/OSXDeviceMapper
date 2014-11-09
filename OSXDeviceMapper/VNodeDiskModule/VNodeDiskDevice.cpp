@@ -236,42 +236,37 @@ IOReturn VNodeDiskDeviceClass::doAsyncReadWrite(
   IOMemoryDescriptor *buffer, UInt64 block, UInt64 nblks, 
   IOStorageAttributes *attributes, IOStorageCompletion *completion)
 {    
+  IOLog("doAsyncReadWrite with parameters %llu block num, %llu num of blocks\n", block, nblks);
+
   if (m_vnode == NULL)
     return kIOReturnIOError;
 
   IOReturn returnMessage = kIOReturnSuccess;
-  if (block >= m_blockNum) {
+  if ((block + nblks - 1) >= m_blockNum || nblks == 0) {
     IOLog("Attempting to write outside vnode disk\n");
-    return kIOReturnOverrun;
+    return kIOReturnIOError;
   }
 
   IODirection direction = buffer->getDirection();
   if ((direction != kIODirectionIn) && (direction != kIODirectionOut)) {
     IOLog("No valid direction of transfer: required either in or out\n");
-    kIOReturnIOError;
+    return kIOReturnIOError;
   }
 
-  UInt64 realNblks = nblks;
-  if ((block + realNblks - 1) >= m_blockNum) {
-    IOLog("Adjusting block number of written\n");
-    realNblks = m_blockNum - block;
-  }
-
-  IOByteCount actualByteCount = realNblks * m_blockSize;
+  IOByteCount actualByteCount = nblks * m_blockSize;
   off_t byteOffset = block * m_blockSize;
+  int aresid = -1;
+
+  char * rawBuffer = (char *) buffer;
+  rawBuffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
+  if (rawBuffer == NULL) {
+    IOLog("Unable to allocate buffer\n");
+    return kIOReturnIOError;
+  }
 
   vfs_context_t vfsContext = vfs_context_create((vfs_context_t) 0);
   proc_t proc = vfs_context_proc(vfsContext);
   kauth_cred_t cr = vfs_context_ucred(vfsContext);
-
-  int aresid = -1;
-
-  char * rawBuffer = NULL;
-  rawBuffer = (char *) IOMalloc(sizeof(char) * actualByteCount);
-  if (rawBuffer == NULL) {
-    IOLog("Unable to allocate buffer\n");
-    goto cleanup;
-  }
 
   if (direction == kIODirectionIn) {
     IOLog("Reading from disk\n");
@@ -280,24 +275,25 @@ IOReturn VNodeDiskDeviceClass::doAsyncReadWrite(
     int readError = vn_rdwr(UIO_READ, m_vnode, (caddr_t) rawBuffer,
       (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-    IOLog("Data was read\n");
     if (readError || aresid > 0) {
       returnMessage = kIOReturnIOError;
       goto cleanup;
     }
 
-    buffer->writeBytes(block * m_blockSize, rawBuffer, actualByteCount);
+    buffer->writeBytes(0, rawBuffer, actualByteCount); // Why the offset?
   } else { // (direction == kIODirectionOut)
     IOLog("Writing to disk\n");
 
-    buffer->readBytes(block * m_blockSize, rawBuffer, actualByteCount); // first arg is offset
+    buffer->readBytes(0, rawBuffer, actualByteCount); // first arg is offset
 
     // TODO: Remove warning (unsigned long long) -> int
     int writeError = vn_rdwr(UIO_WRITE, m_vnode, (caddr_t) rawBuffer,
       (int) actualByteCount, byteOffset, UIO_SYSSPACE, 0, cr, &aresid, proc);
 
-    if (writeError || aresid > 0)
+    if (writeError || aresid > 0) {
+      returnMessage = kIOReturnIOError;
       goto cleanup;
+    }
   }
 
 cleanup:
